@@ -115,10 +115,23 @@ class SpatialBuildTests(unittest.TestCase):
                 for path in root.glob("AfricanBatDatabasePoints.*"):
                     archive.write(path, path.name)
 
-            features, invalid_count = _bat_features(archive_path, {})
+            profiles = {
+                "Myotis punicus": {
+                    "image": "myotis-punicus.jpg",
+                    "image_license_url": "https://creativecommons.org/licenses/by-sa/4.0/",
+                    "image_note": "Representative image.",
+                }
+            }
+            features, invalid_count = _bat_features(archive_path, profiles)
 
         self.assertEqual(invalid_count, 0)
         self.assertEqual(features[0]["geometry"]["coordinates"], [longitude, latitude])
+        self.assertEqual(features[0]["properties"]["image"], "myotis-punicus.jpg")
+        self.assertEqual(
+            features[0]["properties"]["image_license_url"],
+            "https://creativecommons.org/licenses/by-sa/4.0/",
+        )
+        self.assertEqual(features[0]["properties"]["image_note"], "Representative image.")
 
     def test_story_page_uses_geodesic_distance_and_source_record_id(self):
         geod = Geod(ellps="WGS84")

@@ -99,10 +99,13 @@ function groupedRecords(page) {
 function speciesCard(record) {
   selectedRecord = record;
   const image = record.image
-    ? `<img class="species-photo" src="${localPhoto(record.image)}" alt="${esc(record.scientific_name)}">`
-    : "";
+    ? `<img class="species-photo" src="${localPhoto(record.image)}" alt="${esc(record.scientific_name || "Bat species")}" loading="lazy">`
+    : `<div class="species-photo-placeholder">No verified bat image available</div>`;
   const photoCredit = record.image
-    ? `<span class="photo-credit">${esc(record.image_credit || "Photo credit unavailable")} · ${link(record.image_source, "image source")}</span>`
+    ? `<span class="photo-credit">${esc(record.image_credit || "Photo credit unavailable")} · ${link(record.image_source, "image source")}${record.image_license_url ? ` · ${link(record.image_license_url, "license")}` : ""}</span>`
+    : "";
+  const imageNote = record.image_note
+    ? `<p class="image-note">${esc(record.image_note)}</p>`
     : "";
   const english = record.english_name || "Common name not yet verified";
   const diet = record.diet
@@ -112,7 +115,7 @@ function speciesCard(record) {
     ? `${esc(record.foraging_range)} ${link(record.foraging_source, "source")}`
     : "No quantified foraging range is asserted. Buffer radii are analysis distances, not foraging estimates.";
   document.getElementById("species-card").innerHTML = `
-    ${image}${photoCredit}
+    ${image}${photoCredit}${imageNote}
     <h3>${esc(english)}</h3>
     <div class="scientific-name">${esc(record.scientific_name || "Scientific name not recorded")}</div>
     <dl>
@@ -159,6 +162,11 @@ function renderPdfReport(page) {
         scientificName,
         englishName: record.english_name,
         nameSource: record.name_source,
+        image: record.image,
+        imageCredit: record.image_credit,
+        imageSource: record.image_source,
+        imageLicenseUrl: record.image_license_url,
+        imageNote: record.image_note,
         recordCount: 0,
         nearestDistance: Number.POSITIVE_INFINITY,
         bands: new Set()
@@ -174,12 +182,22 @@ function renderPdfReport(page) {
     .sort((a, b) => a.scientificName.localeCompare(b.scientificName))
     .map((taxon) => {
       const englishName = taxon.englishName
-        ? `<br>(${esc(taxon.englishName)})${taxon.nameSource ? ` · ${link(taxon.nameSource, "name source")}` : ""}`
-        : "";
+        ? `<br><span class="pdf-english-name">(${esc(taxon.englishName)})</span>${taxon.nameSource ? ` · ${link(taxon.nameSource, "name source")}` : ""}`
+        : '<br><span class="pdf-english-name">English name not verified</span>';
       const nearest = Number.isFinite(taxon.nearestDistance)
         ? `${taxon.nearestDistance.toFixed(2)} km`
         : "Not recorded";
+      const thumbnail = taxon.image
+        ? `<img class="pdf-species-image" src="${localPhoto(taxon.image)}" alt="${esc(taxon.scientificName)}">`
+        : '<span>Image unavailable</span>';
+      const imageCredit = taxon.image
+        ? `<span class="pdf-image-credit">${esc(taxon.imageCredit || "Photo credit unavailable")} · ${link(taxon.imageSource, "image source")}${taxon.imageLicenseUrl ? ` · ${link(taxon.imageLicenseUrl, "license")}` : ""}</span>`
+        : "";
+      const imageNote = taxon.imageNote
+        ? `<span class="pdf-image-credit">${esc(taxon.imageNote)}</span>`
+        : "";
       return `<tr>
+        <td class="pdf-image-cell">${thumbnail}${imageCredit}${imageNote}</td>
         <td><em>${esc(taxon.scientificName)}</em>${englishName}</td>
         <td>${taxon.recordCount}</td>
         <td>${nearest}</td>
@@ -203,9 +221,9 @@ function renderPdfReport(page) {
     </header>
     <p class="pdf-caveat"><strong>Interpretation:</strong> bat points are occurrence records, not a confirmed-roost inventory. Proximity does not establish mine impact, habitat use, exposure, or disease risk.</p>
     <p class="pdf-summary">${page.bat_records.length.toLocaleString()} occurrence records representing ${species.size.toLocaleString()} species; nearest record ${nearest} from the selected location.</p>
-    <table>
-      <thead><tr><th>Species (English name, if sourced)</th><th>Records</th><th>Nearest record</th><th>Distance bands</th></tr></thead>
-      <tbody>${rows || '<tr><td colspan="4">No bat records are listed for this location.</td></tr>'}</tbody>
+    <table class="pdf-species-table">
+      <thead><tr><th>Bat image</th><th>Species and English name</th><th>Records</th><th>Nearest record</th><th>Distance bands</th></tr></thead>
+      <tbody>${rows || '<tr><td colspan="5">No bat records are listed for this location.</td></tr>'}</tbody>
     </table>
     <h2>Sources and methods</h2>
     <p>Bat occurrence records: Monadjem et al. (2024), <em>African Bat Database</em>, <a href="https://doi.org/10.6084/m9.figshare.26363308.v1">Figshare dataset, version 1</a>.</p>
@@ -333,7 +351,10 @@ function renderPage(index) {
     const button = document.createElement("button");
     button.type = "button";
     const englishName = record.english_name ? ` <span class="english-name">(${esc(record.english_name)})</span>` : "";
-    button.innerHTML = `<span class="record-name"><em>${esc(record.scientific_name || "Unknown species")}</em>${englishName}</span><span>${Number(record.distance_km).toFixed(1)} km</span>`;
+    const thumbnail = record.image
+      ? `<img class="record-thumbnail" src="${localPhoto(record.image)}" alt="" loading="lazy">`
+      : `<span class="record-thumbnail record-thumbnail-placeholder" aria-hidden="true">Image unavailable</span>`;
+    button.innerHTML = `${thumbnail}<span class="record-content"><span class="record-name"><em>${esc(record.scientific_name || "Unknown species")}</em>${englishName}</span><span class="record-distance">${Number(record.distance_km).toFixed(1)} km away</span></span>`;
     button.addEventListener("mouseenter", () => speciesCard(record));
     button.addEventListener("focus", () => speciesCard(record));
     button.addEventListener("click", () => {
@@ -342,6 +363,12 @@ function renderPage(index) {
       button.setAttribute("aria-current", "true");
     });
     item.appendChild(button);
+    if (record.image) {
+      const credit = document.createElement("span");
+      credit.className = "record-image-credit";
+      credit.innerHTML = `${esc(record.image_credit || "Photo credit unavailable")} · ${link(record.image_source, "source")}${record.image_license_url ? ` · ${link(record.image_license_url, "license")}` : ""}${record.image_note ? ` · ${esc(record.image_note)}` : ""}`;
+      item.appendChild(credit);
+    }
     list.appendChild(item);
   });
   if (page.bat_records.length) speciesCard(page.bat_records[0]);
@@ -369,7 +396,7 @@ document.getElementById("export-pdf").addEventListener("click", () => {
 });
 buildRadiusControls();
 
-fetch("data/storymap.json")
+fetch("data/storymap.json?v=20261123-bat-thumbnails")
   .then((response) => {
     if (!response.ok) throw new Error(`Could not load story data (${response.status}).`);
     return response.json();

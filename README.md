@@ -42,7 +42,7 @@ Each location page pairs source attributes with a photograph only when a correct
 - Keep the selected location prominent and show its country, commodity, type, status, mining method, operator, and capacity when recorded.
 - Label nearby points by **genus and species**; hover previews a species card and click, tap, or keyboard focus can open it.
 - Show verified English bat names in parentheses on map labels and nearby-record entries.
-- Filter mine and resource-feature pages by country and location, and export the selected location's 50 km species summary using the browser's print-to-PDF dialog.
+- Filter mine and resource-feature pages by country and location. The bat list and selected species card show locally stored, attributed thumbnails for 206 of the 207 mapped species. Genus-level or otherwise representative images are labeled as such, and the species without a verified image has an explicit placeholder. The print-to-PDF species summary includes thumbnails, scientific names, sourced English names, distances, image credits, and representative-image notes.
 - Calculate facility-to-point distances with WGS 84 ellipsoidal geodesics and assign records to non-overlapping bands: 0–1, 1–5, 5–10, 10–20, 20–30, 30–40, and 40–50 km.
 - Include those seven geodesic distance bands as separate, initially hidden polygon layers in the native JupyterGIS project. The layers are centered on locations represented in the story and show the corresponding occurrence-record count.
 - Let readers draw one or more 1, 5, 10, 20, 30, 40, and 50 km circles from either the selected facility or a selected bat point. Bat-centered circles are rendered on demand to avoid obscuring other points.
@@ -103,7 +103,7 @@ Labay, K. et al. (2017). **Global Distribution of Selected Mines, Deposits, and 
 
 ### Species ecology and media
 
-Species names, traits, and disease context are linked to species-specific references when available; missing foraging-range values are not invented. **Profile coverage is currently partial:** six species profiles exist in the project, but only one of the 207 species represented in the current location matches has a profile; only a few have sourced diet notes, and quantified foraging ranges or species-specific disease associations have not yet been reviewed. The currently included bat and mine photographs are listed in the [Book's media credits](https://jltobias.github.io/JupyterLite-AfricanBatDatabase/book/media-credits.html). Each image credit identifies its creator, source page, and license.
+Species names, traits, and disease context are linked to species-specific references when available; missing foraging-range values are not invented. **Ecology-profile coverage remains partial:** diet notes, quantified foraging ranges, and species-specific disease associations have not been comprehensively reviewed. The currently included bat and mine photographs are listed in the [Book's media credits](https://jltobias.github.io/JupyterLite-AfricanBatDatabase/book/media-credits.html), with creator, source page, and license attribution.
 
 ## Image credits
 

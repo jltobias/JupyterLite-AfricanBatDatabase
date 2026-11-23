@@ -177,18 +177,19 @@ input { accent-color: var(--green); }
 .band-count { color: var(--muted); text-align: right; }
 .records-section h2 span { color: #9c8050; }
 .record-list { list-style: none; margin: 5px 0 10px; max-height: 160px; overflow: auto; padding: 0; }
+.record-list li { border-bottom: 1px solid #e6e5dc; padding: 6px 2px; }
 .record-list button {
   background: transparent;
   border: 0;
-  border-bottom: 1px solid #e6e5dc;
   color: var(--ink);
   cursor: pointer;
   display: flex;
+  align-items: center;
   font: inherit;
   font-size: 11px;
   gap: 8px;
-  justify-content: space-between;
-  padding: 6px 2px;
+  justify-content: flex-start;
+  padding: 0;
   text-align: left;
   width: 100%;
 }
@@ -196,6 +197,26 @@ input { accent-color: var(--green); }
 .record-list em { font-family: Georgia, "Times New Roman", serif; }
 .record-name { min-width: 0; }
 .record-list .english-name { font-size: 10px; }
+.record-thumbnail {
+  background: #e6e2d7;
+  border-radius: 3px;
+  flex: 0 0 48px;
+  height: 48px;
+  object-fit: contain;
+  width: 48px;
+}
+.record-thumbnail-placeholder {
+  align-items: center;
+  color: var(--muted);
+  display: inline-flex;
+  font-size: 8px;
+  justify-content: center;
+  text-align: center;
+}
+.record-content { display: grid; gap: 3px; min-width: 0; }
+.record-distance { color: var(--muted); font-size: 10px; }
+.record-image-credit { color: var(--muted); display: block; font-size: 8px; line-height: 1.25; margin: 3px 0 0 56px; overflow-wrap: anywhere; }
+.record-image-credit a { color: #315d50; }
 
 .species-card {
   background: #efede4;
@@ -210,7 +231,18 @@ input { accent-color: var(--green); }
 .species-card dt { color: #64746b; font-size: 10px; font-weight: 700; }
 .species-card dd { font-size: 10px; margin: 0; }
 .species-card .disease-note { border-top: 1px solid #dad9cf; color: #59665d; margin-top: 8px; padding-top: 7px; }
-.species-photo { max-height: 150px; }
+.species-photo { background: #e6e2d7; height: 120px; max-height: 120px; object-fit: contain; }
+.species-photo-placeholder {
+  align-items: center;
+  background: #e6e2d7;
+  border-radius: 3px;
+  color: var(--muted);
+  display: flex;
+  font-size: 10px;
+  height: 100px;
+  justify-content: center;
+}
+.species-card .image-note { color: var(--muted); font-size: 10px; margin: 2px 0 8px; }
 
 .story-nav { align-items: center; border-top: 1px solid var(--line); display: flex; justify-content: space-between; margin-top: 12px; padding-top: 10px; }
 .story-nav button {
@@ -273,10 +305,19 @@ footer a { color: #315d50; }
   .pdf-report .pdf-eyebrow { color: #52635a; font-size: 8pt; font-weight: bold; letter-spacing: .12em; }
   .pdf-report .pdf-caveat { border-left: 2px solid #b98e42; padding-left: 8px; }
   .pdf-report .pdf-summary { font-weight: bold; margin: 8mm 0 4mm; }
-  .pdf-report table { border-collapse: collapse; font-size: 9pt; width: 100%; }
+  .pdf-report table { border-collapse: collapse; font-size: 9pt; table-layout: fixed; width: 100%; }
   .pdf-report thead { display: table-header-group; }
   .pdf-report th, .pdf-report td { border: 1px solid #cdd2c8; padding: 6px; text-align: left; vertical-align: top; }
   .pdf-report th { background: #edf0e9 !important; }
   .pdf-report tr { break-inside: avoid; }
+  .pdf-species-table th:nth-child(1) { width: 18mm; }
+  .pdf-species-table th:nth-child(2) { width: 66mm; }
+  .pdf-species-table th:nth-child(3) { width: 17mm; }
+  .pdf-species-table th:nth-child(4) { width: 25mm; }
+  .pdf-species-table th:nth-child(5) { width: 42mm; }
+  .pdf-species-image { display: block; height: 14mm; margin: 0 auto 1mm; object-fit: contain; width: 16mm; }
+  .pdf-image-cell { text-align: center !important; }
+  .pdf-image-credit { display: block; font-size: 6pt; line-height: 1.15; }
+  .pdf-english-name { font-style: italic; }
   .pdf-report a { color: inherit; overflow-wrap: anywhere; }
 }

@@ -159,6 +159,8 @@ def _bat_features(shapefile_path: Path, profiles: dict[str, Any]) -> tuple[list[
             "image": profile.get("image"),
             "image_credit": profile.get("image_credit"),
             "image_source": profile.get("image_source"),
+            "image_license_url": profile.get("image_license_url"),
+            "image_note": profile.get("image_note"),
         }
         features.append(
             {
