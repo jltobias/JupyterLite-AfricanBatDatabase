@@ -14,6 +14,10 @@ Eros, J. M., & Candelario-Quintana, L. (2006). *Mineral Facilities of Africa and
 
 This is a historical inventory, not a current operating register. The project preserves the source's status and facility attributes without asserting that they are current.
 
+Labay, K. et al. (2017). *Global Distribution of Selected Mines, Deposits, and Districts of Critical Minerals*. U.S. Geological Survey data release. [https://doi.org/10.5066/F7GH9GQR](https://doi.org/10.5066/F7GH9GQR). The project uses the supplied `PP1802_CritMin_pts` point layer, filtered to countries represented in the bat dataset. The release describes selected features as of 2017, does not identify a feature class for each point, and is not a 2026 mine inventory.
+
+Kibali Gold Mine is not present in the supplied USGS layers. Its separate supplemental point is sourced to [Wikidata item Q104843063](https://www.wikidata.org/wiki/Q104843063); its source and coordinates are retained with the feature.
+
 ## Dataset citation
 
 Monadjem, A., Montauban, C., Webala, P. W., Laverty, T. M., Bakwo-Fils, E. M., Torrent, L., Tanshi, I., Kane, A., Rutrough, A. L., Waldien, D. L., & Taylor, P. J. (2024). African bat database: Curated data of occurrences, distributions and conservation metrics for sub-Saharan bats. *Scientific Data*, 11, 1309. [https://doi.org/10.1038/s41597-024-04170-7](https://doi.org/10.1038/s41597-024-04170-7).

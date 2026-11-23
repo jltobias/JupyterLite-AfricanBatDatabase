@@ -1,14 +1,15 @@
-# First reproducible run
+# Reproducible spatial results
 
-The current build uses the user-supplied 2024 African Bat Database point shapefile and USGS Open-File Report 2006-1135 Table 1. The source's full valid coordinate precision is preserved.
+The current build uses the user-supplied 2024 African Bat Database point shapefile, USGS Open-File Report 2006-1135 Table 1, the supplied 2017 USGS critical-mineral point layer, and a separately attributed supplemental point for Kibali Gold Mine. Source coordinate precision is preserved.
 
 - **17,285** point features are in the shapefile; **17,255** have valid point coordinates and **30** invalid sentinel coordinates are excluded.
-- **848** geocoded USGS facilities are retained for countries represented in the bat-point dataset.
-- **289** facilities classified as mines have at least one point record within 50 km.
-- Those mine pages contain **3,292** unique bat point records and **6,064** mine-to-record distance matches.
-- **182** scientific names occur in those matched records.
+- **848** geocoded facilities are retained from the USGS 2006 inventory.
+- **232** USGS critical-mineral point features and **one supplemental Kibali location** are included.
+- **290** mine pages and **195** resource-feature pages have at least one bat record within 50 km.
+- Those **485** location pages contain **4,387** unique bat point records and **10,340** location-to-record distance matches.
+- **207** scientific names occur in those matched records.
 
-Counts are reproducible build outputs, not ecological estimates. A point may be associated with multiple mine pages, so the record total and distance-match total differ. The exact counts for any publication are shown in the generated [StoryMap data](https://jltobias.github.io/JupyterLite-AfricanBatDatabase/storymap/data/storymap.json).
+Counts are reproducible build outputs, not ecological estimates. The 2017 USGS source covers selected mines, deposits, districts, and regions but does not classify each feature; it is not a 2026 mine inventory. A bat point may be associated with multiple location pages, so the record total and distance-match total differ. The exact counts for any publication are shown in the generated [StoryMap data](https://jltobias.github.io/JupyterLite-AfricanBatDatabase/storymap/data/storymap.json).
 
 ## What this does not establish
 

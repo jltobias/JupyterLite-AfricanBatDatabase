@@ -81,7 +81,7 @@ function drawRings() {
       fill: false,
       opacity: 0.8,
       weight: 1.5
-    }).bindTooltip(`${radius} km ${centerMode === "bat" ? "from selected bat record" : "from facility"}`)
+    }).bindTooltip(`${radius} km ${centerMode === "bat" ? "from selected bat record" : "from selected location"}`)
       .addTo(ringLayer);
   });
 }
@@ -119,7 +119,7 @@ function speciesCard(record) {
       <dt>Record locality</dt><dd>${esc(record.location || "Not recorded")}, ${esc(record.country || "")}</dd>
       <dt>Record year</dt><dd>${esc(record.year || "Not recorded")}</dd>
       <dt>Common name source</dt><dd>${link(record.name_source, "species account")}</dd>
-      <dt>Distance to facility</dt><dd>${Number(record.distance_km).toFixed(2)} km (${esc(record.distance_band)})</dd>
+      <dt>Distance to selected location</dt><dd>${Number(record.distance_km).toFixed(2)} km (${esc(record.distance_band)})</dd>
       <dt>Diet</dt><dd>${diet}</dd>
       <dt>Foraging</dt><dd>${foraging}</dd>
       <dt>Record source</dt><dd>${esc(record.reference || "Database reference not recorded")} · ${link("https://doi.org/10.6084/m9.figshare.26363308.v1", "dataset citation")}</dd>
@@ -187,6 +187,9 @@ function renderPdfReport(page) {
       </tr>`;
     }).join("");
   const facility = page.facility;
+  const featureCaveat = facility.source_label === "USGS 2017"
+    ? " These selected critical-mineral features can represent mines, deposits, districts, or regions; the source does not classify each feature."
+    : "";
   const nearest = Number.isFinite(Number(page.nearest_record_km))
     ? `${Number(page.nearest_record_km).toFixed(2)} km`
     : "Not recorded";
@@ -199,14 +202,14 @@ function renderPdfReport(page) {
       <p>${esc(facility.country)} · ${esc(facility.commodity || "Commodity not recorded")} · Generated ${esc(generated)}</p>
     </header>
     <p class="pdf-caveat"><strong>Interpretation:</strong> bat points are occurrence records, not a confirmed-roost inventory. Proximity does not establish mine impact, habitat use, exposure, or disease risk.</p>
-    <p class="pdf-summary">${page.bat_records.length.toLocaleString()} occurrence records representing ${species.size.toLocaleString()} species; nearest record ${nearest} from the facility.</p>
+    <p class="pdf-summary">${page.bat_records.length.toLocaleString()} occurrence records representing ${species.size.toLocaleString()} species; nearest record ${nearest} from the selected location.</p>
     <table>
       <thead><tr><th>Species (English name, if sourced)</th><th>Records</th><th>Nearest record</th><th>Distance bands</th></tr></thead>
-      <tbody>${rows || '<tr><td colspan="4">No bat records are listed for this facility.</td></tr>'}</tbody>
+      <tbody>${rows || '<tr><td colspan="4">No bat records are listed for this location.</td></tr>'}</tbody>
     </table>
     <h2>Sources and methods</h2>
     <p>Bat occurrence records: Monadjem et al. (2024), <em>African Bat Database</em>, <a href="https://doi.org/10.6084/m9.figshare.26363308.v1">Figshare dataset, version 1</a>.</p>
-    <p>Mine locations: USGS Open-File Report 2006-1135, Table 1. Distances are WGS84 geodesic measurements; the 50 km study area is an analysis threshold, not a biological range estimate.</p>`;
+    <p>Location source: ${link(facility.source_url, facility.source_name || facility.source_label || "source not recorded")}.${esc(featureCaveat)} Distances are WGS84 geodesic measurements; the 50 km study area is an analysis threshold, not a biological range estimate.</p>`;
 }
 
 function initializeMineFilters() {
@@ -245,7 +248,7 @@ function initializeMineFilters() {
       option.value = String(storyIndex);
       const name = facilityName(page);
       option.textContent = nameCounts.get(name.toLocaleLowerCase()) > 1
-        ? `${name} · USGS ${page.facility.source_position}`
+        ? `${name} · ${page.facility.source_label} #${page.facility.source_position}`
         : name;
       mineFilter.appendChild(option);
     });
@@ -263,7 +266,7 @@ function initializeMineFilters() {
 
 function renderPage(index) {
   if (!story || !visiblePages.length) {
-    status.textContent = "No coordinate-valid mine facilities have bat records within 50 km in the selected sources.";
+    status.textContent = "No coordinate-valid mine or mineral-resource locations have bat records within 50 km in the selected sources.";
     return;
   }
   currentIndex = Math.max(0, Math.min(index, visiblePages.length - 1));
@@ -301,7 +304,7 @@ function renderPage(index) {
       : null;
   const picture = facilityPhoto
     ? `<img class="facility-photo" src="${localPhoto(facilityPhoto[0])}" alt="Photograph of ${esc(page.facility.name)}">`
-    : `<p class="control-note">No verified site photograph is available for this facility.</p>`;
+    : `<p class="control-note">No verified site photograph is available for this location.</p>`;
   const pictureCredit = facilityPhoto
     ? `<span class="photo-credit">${esc(facilityPhoto[1])} · ${link(facilityPhoto[2], "photo source")}</span>`
     : "";
@@ -312,9 +315,12 @@ function renderPage(index) {
       <div><dt>Country</dt><dd>${esc(page.facility.country)}</dd></div>
       <div><dt>Commodity</dt><dd>${esc(page.facility.commodity || "Not recorded")}</dd></div>
       <div><dt>Facility type</dt><dd>${esc(page.facility.facility_type || "Not recorded")}</dd></div>
+      <div><dt>Deposit type</dt><dd>${esc(page.facility.deposit_type || "Not specified")}</dd></div>
       <div><dt>Mining method</dt><dd>${esc(page.facility.mining_method || "Not recorded")}</dd></div>
       <div><dt>Operator</dt><dd>${esc(page.facility.operator || "Not recorded")}</dd></div>
-      <div><dt>Capacity (2006)</dt><dd>${esc(page.facility.capacity || "Not recorded")} ${esc(page.facility.units || "")}</dd></div>
+      <div><dt>Capacity</dt><dd>${esc(page.facility.capacity || "Not recorded")} ${esc(page.facility.units || "")}</dd></div>
+      <div><dt>Source locality detail</dt><dd>${esc(page.facility.location_detail || "Not recorded")}</dd></div>
+      <div><dt>Location source</dt><dd>${link(page.facility.source_url, page.facility.source_name || page.facility.source_label || "Source not recorded")}</dd></div>
     </div>
     <p><strong>${page.nearby_record_count}</strong> bat point records within 50 km; nearest record ${Number(page.nearest_record_km).toFixed(2)} km away.</p>`;
 

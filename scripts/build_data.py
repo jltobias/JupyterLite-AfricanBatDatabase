@@ -6,6 +6,7 @@ import json
 import math
 import shutil
 import tempfile
+import unicodedata
 import uuid
 import zipfile
 from io import BytesIO
@@ -21,9 +22,12 @@ from pyproj import Geod, Transformer
 
 ROOT = Path(__file__).resolve().parents[1]
 BAT_SHAPEFILE = ROOT / "data" / "source" / "AfricanBatDatabasePoints.zip"
+CRITICAL_MINERAL_SHAPEFILE = ROOT / "data" / "source" / "PP1802_CritMin_Shapefiles.zip"
+SUPPLEMENTAL_FACILITIES = ROOT / "data" / "source" / "supplemental_facilities.geojson"
 SPECIES_PROFILES = ROOT / "data" / "species_profiles.json"
 PHOTO_DIR = ROOT / "assets" / "photos"
 USGS_URL = "https://pubs.usgs.gov/of/2006/1135/table1.xls"
+CRITICAL_MINERALS_URL = "https://doi.org/10.5066/F7GH9GQR"
 RADIUS_KM = (1, 5, 10, 20, 30, 40, 50)
 BANDS = ("0-1 km", ">1-5 km", ">5-10 km", ">10-20 km", ">20-30 km", ">30-40 km", ">40-50 km")
 MAX_DISTANCE_M = 50_000
@@ -35,13 +39,12 @@ class DataBuildError(RuntimeError):
     pass
 
 
-def _safe_extract_shapefile(archive_path: Path, destination: Path) -> Path:
-    required = {
-        "AfricanBatDatabasePoints.shp",
-        "AfricanBatDatabasePoints.shx",
-        "AfricanBatDatabasePoints.dbf",
-        "AfricanBatDatabasePoints.prj",
-    }
+def _safe_extract_shapefile(
+    archive_path: Path,
+    destination: Path,
+    shapefile_stem: str = "AfricanBatDatabasePoints",
+) -> Path:
+    required = {f"{shapefile_stem}.{suffix}" for suffix in ("shp", "shx", "dbf", "prj")}
     with zipfile.ZipFile(archive_path) as archive:
         names = {Path(item.filename).name for item in archive.infolist()}
         unsafe = [
@@ -55,9 +58,9 @@ def _safe_extract_shapefile(archive_path: Path, destination: Path) -> Path:
             raise DataBuildError("The bat shapefile archive is missing required files.")
         for item in archive.infolist():
             name = Path(item.filename).name
-            if name in required or name == "AfricanBatDatabasePoints.cpg":
+            if name in required or name == f"{shapefile_stem}.cpg":
                 (destination / name).write_bytes(archive.read(item))
-    return destination / "AfricanBatDatabasePoints.shp"
+    return destination / f"{shapefile_stem}.shp"
 
 
 def _is_valid_coordinate(longitude: Any, latitude: Any) -> bool:
@@ -191,22 +194,190 @@ def _facility_data(source_url: str, countries: set[str]) -> pd.DataFrame:
     valid = facilities.apply(
         lambda row: _is_valid_coordinate(row["longitude"], row["latitude"]), axis=1
     )
-    return facilities.loc[valid & facilities["Country"].isin(countries)].copy()
+    facilities = facilities.loc[valid & facilities["Country"].isin(countries)].copy()
+    facilities["facility_id"] = "USGS-2006-" + facilities["Position"].astype(int).astype(str)
+    facilities["source_position"] = facilities["Position"].astype(int)
+    facilities["source_label"] = "USGS 2006"
+    facilities["source_name"] = "USGS Open-File Report 2006-1135, Table 1"
+    facilities["source_url"] = "https://pubs.usgs.gov/of/2006/1135/"
+    facilities["story_kind"] = facilities["Facility Type"].map(
+        lambda value: "mine" if str(value).strip().casefold() == "mine" else "facility"
+    )
+    facilities["story_eligible"] = facilities["story_kind"] == "mine"
+    facilities["deposit_type"] = None
+    facilities["location_detail"] = None
+    return facilities
+
+
+def _country_key(value: Any) -> str:
+    normalized = unicodedata.normalize("NFKD", str(value))
+    normalized = "".join(char for char in normalized if not unicodedata.combining(char))
+    key = " ".join("".join(char if char.isalnum() else " " for char in normalized.casefold()).split())
+    aliases = {
+        "democratic republic of the congo": "democratic republic of congo",
+        "burkina fasso": "burkina faso",
+        "cote d ivoire": "ivory coast",
+        "mocambique": "mozambique",
+    }
+    return aliases.get(key, key)
+
+
+def _repair_mixed_dbf_encoding(value: Any) -> Any:
+    if not isinstance(value, str):
+        return value
+    try:
+        return value.encode("cp1252").decode("utf-8")
+    except (UnicodeEncodeError, UnicodeDecodeError):
+        return value
+
+
+def _canonical_country(value: Any, countries: set[str]) -> str | None:
+    source_name = str(value).strip()
+    if source_name in countries:
+        return source_name
+    country_lookup = {_country_key(country): country for country in sorted(countries)}
+    return country_lookup.get(_country_key(source_name))
+
+
+def _critical_mineral_data(archive_path: Path, countries: set[str]) -> pd.DataFrame:
+    if not archive_path.is_file():
+        raise DataBuildError(f"USGS critical-mineral shapefile not found: {archive_path}")
+    with tempfile.TemporaryDirectory(prefix="usgs-critical-minerals-") as temp_dir:
+        shapefile = _safe_extract_shapefile(
+            archive_path, Path(temp_dir), "PP1802_CritMin_pts"
+        )
+        # The supplied DBF mixes UTF-8 and Windows-1252 text despite its UTF-8 sidecar.
+        points = gpd.read_file(shapefile, encoding="cp1252")
+
+    required = {"DEPOSIT_NA", "CRITICAL_M", "DEPOSIT_TY", "LOCATION", "LOC_DETAIL"}
+    missing = required.difference(points.columns)
+    if missing:
+        raise DataBuildError(
+            f"The USGS critical-mineral shapefile is missing fields: {', '.join(sorted(missing))}"
+        )
+    if points.crs is None or points.crs.to_epsg() != 4326:
+        raise DataBuildError("The USGS critical-mineral point shapefile must use EPSG:4326.")
+    for field in required:
+        points[field] = points[field].map(_repair_mixed_dbf_encoding)
+
+    facilities = []
+    for row_number, (_, point) in enumerate(points.iterrows(), start=1):
+        country = _canonical_country(point["LOCATION"], countries)
+        geometry = point.geometry
+        if (
+            country is None
+            or geometry is None
+            or geometry.is_empty
+            or geometry.geom_type != "Point"
+        ):
+            continue
+        longitude, latitude = float(geometry.x), float(geometry.y)
+        if not _is_valid_coordinate(longitude, latitude):
+            continue
+        facilities.append(
+            {
+                "Position": row_number,
+                "Country": country,
+                "Location And Facility Name": _value(point["DEPOSIT_NA"]),
+                "Facility Type": "USGS critical-mineral resource feature (class not specified)",
+                "latitude": latitude,
+                "longitude": longitude,
+                "Commodity": _value(point["CRITICAL_M"]),
+                "Mining Method": None,
+                "Main Operating Company": None,
+                "Status": None,
+                "Capacity": None,
+                "Units": None,
+                "facility_id": f"USGS-PP1802-{row_number}",
+                "source_position": row_number,
+                "source_label": "USGS 2017",
+                "source_name": "Global Distribution of Selected Mines, Deposits, and Districts of Critical Minerals",
+                "source_url": CRITICAL_MINERALS_URL,
+                "story_kind": "resource_feature",
+                "story_eligible": True,
+                "deposit_type": _value(point["DEPOSIT_TY"]),
+                "location_detail": _value(point["LOC_DETAIL"]),
+            }
+        )
+    return pd.DataFrame(facilities)
+
+
+def _supplemental_facility_data(path: Path, countries: set[str]) -> pd.DataFrame:
+    if not path.is_file():
+        raise DataBuildError(f"Supplemental facility data not found: {path}")
+    collection = json.loads(path.read_text(encoding="utf-8"))
+    if collection.get("type") != "FeatureCollection" or not isinstance(
+        collection.get("features"), list
+    ):
+        raise DataBuildError(f"Supplemental facility data is not a GeoJSON FeatureCollection: {path}")
+
+    facilities = []
+    for position, feature in enumerate(collection["features"], start=1):
+        properties = feature.get("properties", {})
+        coordinates = feature.get("geometry", {}).get("coordinates", [])
+        if len(coordinates) != 2:
+            raise DataBuildError(f"Supplemental facility has invalid coordinates: {properties.get('name')}")
+        longitude, latitude = coordinates
+        country = _canonical_country(properties.get("country"), countries)
+        if country is None:
+            continue
+        if not _is_valid_coordinate(longitude, latitude):
+            raise DataBuildError(f"Supplemental facility has invalid coordinates: {properties.get('name')}")
+        facilities.append(
+            {
+                "Position": position,
+                "Country": country,
+                "Location And Facility Name": properties.get("name"),
+                "Facility Type": properties.get("facility_type"),
+                "latitude": float(latitude),
+                "longitude": float(longitude),
+                "Commodity": properties.get("commodity"),
+                "Mining Method": properties.get("mining_method"),
+                "Main Operating Company": properties.get("operator"),
+                "Status": properties.get("status"),
+                "Capacity": properties.get("capacity"),
+                "Units": properties.get("units"),
+                "facility_id": properties.get("facility_id"),
+                "source_position": position,
+                "source_label": properties.get("source_label"),
+                "source_name": properties.get("source_name"),
+                "source_url": properties.get("source_url"),
+                "story_kind": properties.get("story_kind", "mine"),
+                "story_eligible": True,
+                "deposit_type": properties.get("deposit_type"),
+                "location_detail": properties.get("location_detail"),
+            }
+        )
+    return pd.DataFrame(facilities)
 
 
 def _facility_feature(row: pd.Series) -> dict[str, Any]:
+    source_position = _value(row.get("source_position", row.get("Position")))
+    facility_type = _value(row["Facility Type"])
+    story_kind = _value(row.get("story_kind")) or (
+        "mine" if str(facility_type or "").strip().casefold() == "mine" else "facility"
+    )
     properties = {
-        "facility_id": f"USGS-2006-{int(row['Position'])}",
-        "source_position": int(row["Position"]),
+        "facility_id": _value(row.get("facility_id"))
+        or f"USGS-2006-{int(row['Position'])}",
+        "source_position": source_position,
+        "source_label": _value(row.get("source_label")) or "USGS 2006",
+        "source_name": _value(row.get("source_name"))
+        or "USGS Open-File Report 2006-1135, Table 1",
+        "source_url": _value(row.get("source_url"))
+        or "https://pubs.usgs.gov/of/2006/1135/",
+        "story_kind": story_kind,
         "country": _value(row["Country"]),
         "name": _value(row["Location And Facility Name"]),
-        "facility_type": _value(row["Facility Type"]),
+        "facility_type": facility_type,
         "commodity": _value(row["Commodity"]),
         "mining_method": _value(row["Mining Method"]),
         "operator": _value(row["Main Operating Company"]),
         "status": _value(row["Status"]),
         "capacity": _value(row["Capacity"]),
         "units": _value(row["Units"]),
+        "deposit_type": _value(row.get("deposit_type")),
+        "location_detail": _value(row.get("location_detail")),
     }
     return {
         "type": "Feature",
@@ -239,7 +410,10 @@ def _story_pages(
     for _, facility in facilities.iterrows():
         facility_feature = _facility_feature(facility)
         facility_features.append(facility_feature)
-        if str(facility.get("Facility Type", "")).strip().lower() != "mine":
+        story_eligible = facility.get("story_eligible")
+        if pd.isna(story_eligible):
+            story_eligible = facility_feature["properties"]["story_kind"] == "mine"
+        if not bool(story_eligible):
             continue
 
         longitude = float(facility["longitude"])
@@ -294,7 +468,7 @@ def _story_pages(
         key=lambda page: (
             str(page["facility"]["country"] or ""),
             str(page["facility"]["name"] or ""),
-            page["facility"]["source_position"],
+            str(page["facility"]["facility_id"]),
         )
     )
     nearby_features = [feature for feature in bat_features if feature["id"] in used_records]
@@ -329,6 +503,9 @@ def _mine_buffer_features(pages: list[dict[str, Any]]) -> dict[int, list[dict[st
     for page in pages:
         longitude, latitude = page["coordinates"]
         facility = page["facility"]
+        facility_id = facility.get(
+            "facility_id", f"USGS-2006-{facility['source_position']}"
+        )
         inner_radius_km = 0
         for index, outer_radius_km in enumerate(RADIUS_KM):
             rings = [_geodesic_ring(longitude, latitude, outer_radius_km, clockwise=False)]
@@ -337,11 +514,13 @@ def _mine_buffer_features(pages: list[dict[str, Any]]) -> dict[int, list[dict[st
             buffers[outer_radius_km].append(
                 {
                     "type": "Feature",
-                    "id": f"{facility['source_position']}-{inner_radius_km}-{outer_radius_km}",
+                    "id": f"{facility_id}-{inner_radius_km}-{outer_radius_km}",
                     "geometry": {"type": "Polygon", "coordinates": rings},
                     "properties": {
+                        "facility_id": facility_id,
                         "facility_source_position": facility["source_position"],
                         "facility_name": facility["name"],
+                        "source_label": facility.get("source_label", "USGS 2006"),
                         "country": facility["country"],
                         "inner_radius_km": inner_radius_km,
                         "outer_radius_km": outer_radius_km,
@@ -373,7 +552,7 @@ def _jgis_project(pages: list[dict[str, Any]]) -> dict[str, Any]:
             "parameters": {"opacity": 1.0, "source": base_source_id},
         },
         facility_layer_id: {
-            "name": "USGS mineral facilities (2006)",
+            "name": "USGS mineral features (2006/2017) and supplemental mine",
             "type": "VectorLayer",
             "visible": True,
             "parameters": {"opacity": 1.0, "source": facility_source_id, "symbologyState": {}},
@@ -388,7 +567,7 @@ def _jgis_project(pages: list[dict[str, Any]]) -> dict[str, Any]:
     for radius in RADIUS_KM:
         inner_radius_km = RADIUS_KM[RADIUS_KM.index(radius) - 1] if radius != RADIUS_KM[0] else 0
         layers[buffer_layer_ids[radius]] = {
-            "name": f"Mine distance band: {inner_radius_km}-{radius} km",
+            "name": f"Location distance band: {inner_radius_km}-{radius} km",
             "type": "VectorLayer",
             "visible": False,
             "parameters": {
@@ -403,11 +582,18 @@ def _jgis_project(pages: list[dict[str, Any]]) -> dict[str, Any]:
         x, y = WEB_MERCATOR.transform(*coords)
         extent = [x - 120_000, y - 120_000, x + 120_000, y + 120_000]
         image, credit = _story_image(facility, PHOTO_DIR)
+        source_text = (
+            f"**Source:** [{facility.get('source_name', 'source not recorded')}]"
+            f"({facility.get('source_url', '')})"
+        )
+        if facility.get("deposit_type"):
+            source_text += f" · **Deposit type:** {facility['deposit_type']}"
         story_text = (
             f"### {facility['name']}, {facility['country']}\n\n"
             f"**Facility:** {facility['facility_type'] or 'not recorded'} · "
             f"**Commodity:** {facility['commodity'] or 'not recorded'} · "
-            f"**Status in 2006 source:** {facility['status'] or 'not recorded'}\n\n"
+            f"**Status:** {facility['status'] or 'not recorded'}\n\n"
+            f"{source_text}\n\n"
             f"**Bat point records within 50 km:** {page['nearby_record_count']} · "
             f"**Nearest record:** {page['nearest_record_km']:.1f} km.\n\n"
             "These are occurrence localities, not a confirmed-roost inventory. "
@@ -524,7 +710,14 @@ def build(output_dir: Path, shapefile_path: Path = BAT_SHAPEFILE) -> dict[str, A
         raise DataBuildError("No valid bat point records were found.")
 
     countries = {feature["properties"]["country"] for feature in bat_features}
-    facilities = _facility_data(USGS_URL, countries)
+    historical_facilities = _facility_data(USGS_URL, countries)
+    critical_mineral_features = _critical_mineral_data(CRITICAL_MINERAL_SHAPEFILE, countries)
+    supplemental_facilities = _supplemental_facility_data(SUPPLEMENTAL_FACILITIES, countries)
+    facilities = pd.concat(
+        [historical_facilities, critical_mineral_features, supplemental_facilities],
+        ignore_index=True,
+        sort=False,
+    )
 
     pages, facility_features, nearby_features = _story_pages(facilities, bat_features)
     lite_root = output_dir / "lite"
@@ -541,22 +734,40 @@ def build(output_dir: Path, shapefile_path: Path = BAT_SHAPEFILE) -> dict[str, A
     story_data = {
         "source": {
             "bat": "Monadjem et al. (2024), African Bat Database shapefile supplied for this project; source version 1.",
-            "mining": "Eros & Candelario-Quintana (2006), USGS Open-File Report 2006-1135, Table 1.",
+            "mining": [
+                "Eros & Candelario-Quintana (2006), USGS Open-File Report 2006-1135, Table 1.",
+                "Labay et al. (2017), USGS Global Distribution of Selected Mines, Deposits, and Districts of Critical Minerals; point layer.",
+                "Kibali Gold Mine coordinates from Wikidata item Q104843063; supplemental to the USGS layers.",
+            ],
             "bat_license": "CC BY 4.0",
             "bat_url": "https://doi.org/10.6084/m9.figshare.26363308.v1",
             "mining_url": "https://pubs.usgs.gov/of/2006/1135/",
+            "critical_minerals_url": CRITICAL_MINERALS_URL,
+            "supplemental_facility_url": "https://www.wikidata.org/wiki/Q104843063",
             "crs": "EPSG:4326",
-            "coordinate_precision": "Original valid shapefile coordinates retained without rounding.",
+            "coordinate_precision": "Original valid bat and mineral-feature coordinates retained without rounding.",
         },
         "summary": {
             "input_bat_records": len(bat_features) + invalid_bat_count,
             "valid_bat_records": len(bat_features),
             "invalid_bat_coordinates_excluded": invalid_bat_count,
             "coordinate_valid_facilities": len(facility_features),
-            "mine_pages_with_bat_records_within_50km": len(pages),
-            "unique_bat_records_near_mines": len(nearby_features),
-            "mine_record_associations": sum(page["nearby_record_count"] for page in pages),
-            "species_near_mines": len(
+            "coordinate_valid_2006_facilities": len(historical_facilities),
+            "coordinate_valid_2017_resource_features": len(critical_mineral_features),
+            "supplemental_coordinate_valid_facilities": len(supplemental_facilities),
+            "pages_with_bat_records_within_50km": len(pages),
+            "mine_pages_with_bat_records_within_50km": sum(
+                page["facility"]["story_kind"] == "mine" for page in pages
+            ),
+            "resource_feature_pages_with_bat_records_within_50km": sum(
+                page["facility"]["story_kind"] == "resource_feature" for page in pages
+            ),
+            "supplemental_mine_pages_with_bat_records_within_50km": sum(
+                page["facility"]["source_label"] == "Wikidata" for page in pages
+            ),
+            "unique_bat_records_near_locations": len(nearby_features),
+            "location_record_associations": sum(page["nearby_record_count"] for page in pages),
+            "species_near_locations": len(
                 {
                     record["scientific_name"]
                     for page in pages

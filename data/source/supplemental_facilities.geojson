@@ -1,0 +1,25 @@
+{
+  "type": "FeatureCollection",
+  "name": "Supplemental mine locations",
+  "features": [
+    {
+      "type": "Feature",
+      "id": "Wikidata-Q104843063",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [29.584743, 3.112674]
+      },
+      "properties": {
+        "facility_id": "Wikidata-Q104843063",
+        "name": "Kibali Gold Mine",
+        "country": "Democratic Republic of Congo",
+        "facility_type": "Mine (supplemental location; not present in the supplied USGS layers)",
+        "commodity": "Gold",
+        "story_kind": "mine",
+        "source_label": "Wikidata",
+        "source_name": "Wikidata item Q104843063 — Kibali Gold Mine",
+        "source_url": "https://www.wikidata.org/wiki/Q104843063"
+      }
+    }
+  ]
+}

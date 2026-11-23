@@ -10,12 +10,15 @@ from shapely.geometry import Point
 
 from scripts.build_data import (
     BANDS,
+    SUPPLEMENTAL_FACILITIES,
     RADIUS_KM,
     _band,
     _bat_features,
+    _critical_mineral_data,
     _is_valid_coordinate,
     _jgis_project,
     _mine_buffer_features,
+    _supplemental_facility_data,
     _story_pages,
 )
 
@@ -158,6 +161,113 @@ class SpatialBuildTests(unittest.TestCase):
         self.assertEqual(pages[0]["bat_records"][0]["record_id"], 87)
         self.assertEqual(pages[0]["bat_records"][0]["distance_band"], "0-1 km")
         self.assertEqual(nearby[0]["id"], 87)
+
+    def test_story_page_includes_class_unresolved_critical_mineral_features(self):
+        points = [
+            {
+                "type": "Feature",
+                "id": 87,
+                "geometry": {"type": "Point", "coordinates": [0.001, 0.0]},
+                "properties": {
+                    "record_id": 87,
+                    "scientific_name": "Myotis punicus",
+                    "location": "Test locality",
+                    "country": "Test country",
+                },
+            }
+        ]
+        facilities = pd.DataFrame(
+            [
+                {
+                    "Position": 12,
+                    "Country": "Test country",
+                    "Location And Facility Name": "Test resource feature",
+                    "Facility Type": "USGS critical-mineral resource feature (class not specified)",
+                    "latitude": 0.0,
+                    "longitude": 0.0,
+                    "Commodity": "Cobalt",
+                    "Mining Method": None,
+                    "Main Operating Company": None,
+                    "Status": None,
+                    "Capacity": None,
+                    "Units": None,
+                    "story_kind": "resource_feature",
+                    "story_eligible": True,
+                    "facility_id": "USGS-PP1802-12",
+                    "source_position": 12,
+                    "source_label": "USGS 2017",
+                    "source_name": "Global critical-mineral resource features",
+                    "source_url": "https://doi.org/10.5066/F7GH9GQR",
+                }
+            ]
+        )
+
+        pages, _, _ = _story_pages(facilities, points)
+
+        self.assertEqual(len(pages), 1)
+        self.assertEqual(pages[0]["facility"]["story_kind"], "resource_feature")
+        self.assertEqual(pages[0]["facility"]["facility_id"], "USGS-PP1802-12")
+
+
+class MineralSourceTests(unittest.TestCase):
+    def test_critical_mineral_source_normalizes_drc_country_and_preserves_provenance(self):
+        points = gpd.GeoDataFrame(
+            {
+                "DEPOSIT_NA": ["Écaille C", "Côte test"],
+                "CRITICAL_M": ["Cobalt", "Cobalt"],
+                "DEPOSIT_TY": ["Stratiform Cu-Co", "Stratiform Cu-Co"],
+                "LOCATION": ["Democratic Republic of the Congo", "Côte d’Ivoire"],
+                "LOC_DETAIL": ["Test province", "Test district"],
+            },
+            geometry=[Point(29.5, 3.1), Point(-5.0, 7.0)],
+            crs="EPSG:4326",
+        )
+        with tempfile.TemporaryDirectory() as temp_dir:
+            root = Path(temp_dir)
+            source = root / "PP1802_CritMin_pts.shp"
+            points.to_file(source, driver="ESRI Shapefile", index=False, encoding="UTF-8")
+            archive_path = root / "critical-minerals.zip"
+            with zipfile.ZipFile(archive_path, "w", zipfile.ZIP_DEFLATED) as archive:
+                for path in root.glob("PP1802_CritMin_pts.*"):
+                    archive.write(path, path.name)
+
+            facilities = _critical_mineral_data(
+                archive_path, {"Democratic Republic of Congo", "Ivory Coast"}
+            )
+
+        self.assertEqual(len(facilities), 2)
+        self.assertEqual(facilities.iloc[0]["Country"], "Democratic Republic of Congo")
+        self.assertEqual(facilities.iloc[0]["Location And Facility Name"], "Écaille C")
+        self.assertEqual(facilities.iloc[1]["Country"], "Ivory Coast")
+        self.assertEqual(facilities.iloc[0]["facility_id"], "USGS-PP1802-1")
+        self.assertEqual(facilities.iloc[0]["story_kind"], "resource_feature")
+
+    def test_supplemental_kibali_location_is_separate_and_cited(self):
+        facilities = _supplemental_facility_data(
+            SUPPLEMENTAL_FACILITIES, {"Democratic Republic of Congo"}
+        )
+        bat_points = [
+            {
+                "type": "Feature",
+                "id": 2196,
+                "geometry": {"type": "Point", "coordinates": [29.567, 3.117]},
+                "properties": {
+                    "record_id": 2196,
+                    "scientific_name": "Macronycteris vittatus",
+                    "country": "Democratic Republic of Congo",
+                },
+            }
+        ]
+        pages, _, _ = _story_pages(facilities, bat_points)
+
+        self.assertEqual(len(facilities), 1)
+        self.assertEqual(facilities.iloc[0]["Location And Facility Name"], "Kibali Gold Mine")
+        self.assertEqual(facilities.iloc[0]["source_label"], "Wikidata")
+        self.assertEqual(facilities.iloc[0]["source_url"], "https://www.wikidata.org/wiki/Q104843063")
+        self.assertEqual(facilities.iloc[0]["longitude"], 29.584743)
+        self.assertEqual(facilities.iloc[0]["latitude"], 3.112674)
+        self.assertEqual(pages[0]["facility"]["name"], "Kibali Gold Mine")
+        self.assertLess(pages[0]["nearest_record_km"], 50)
 
 
 if __name__ == "__main__":

@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="description" content="A mine-by-mine exploration of African bat occurrence records near mineral facilities.">
+    <meta name="description" content="A location-by-location exploration of African bat occurrence records near mines and mineral resources.">
     <title>African Bats & Mining | StoryMap</title>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
     <link rel="stylesheet" href="storymap.css?v=20261123">
@@ -18,33 +18,33 @@
       </nav>
     </header>
     <main>
-      <section class="story" aria-label="Mine-by-mine story">
+      <section class="story" aria-label="Mine and mineral-feature story">
         <div class="eyebrow">A SPATIAL STORY · 50 KM STUDY AREA</div>
         <h1>African Bats<br>&amp; Mining</h1>
-        <p class="lede">Follow mineral facilities and the bat records documented around them.</p>
+        <p class="lede">Follow selected mine and mineral-resource locations and the bat records documented around them.</p>
         <p class="notice"><strong>Important:</strong> the supplied bat points are occurrence localities, not a confirmed-roost inventory. Distance is not evidence of impact, habitat use, exposure, or disease risk.</p>
         <div id="status" role="status" aria-live="polite">Loading source data…</div>
-        <section class="mine-filter" aria-label="Choose a country and mine">
+        <section class="mine-filter" aria-label="Choose a country and location">
           <label for="country-filter">Country
             <select id="country-filter"></select>
           </label>
-          <label for="mine-filter">Mine / facility
+          <label for="mine-filter">Mine / mineral feature
             <select id="mine-filter"></select>
           </label>
         </section>
-        <section id="facility-card" aria-live="polite" aria-label="Selected facility"></section>
+        <section id="facility-card" aria-live="polite" aria-label="Selected location"></section>
         <section class="controls" aria-label="Map controls">
           <h2>Distance rings</h2>
           <fieldset>
             <legend>Center rings on</legend>
-            <label><input type="radio" name="ring-center" value="mine" checked> Selected facility</label>
+            <label><input type="radio" name="ring-center" value="mine" checked> Selected location</label>
             <label><input type="radio" name="ring-center" value="bat"> Selected bat record</label>
           </fieldset>
           <div id="radius-controls" class="radius-controls" aria-label="Buffer radii"></div>
           <p class="control-note">Select one or more radii. Bat-centered rings are exploratory buffers, not foraging ranges.</p>
         </section>
-        <section class="band-section" aria-label="Records by distance from mine">
-          <h2>Bat records by distance from facility</h2>
+        <section class="band-section" aria-label="Records by distance from selected location">
+          <h2>Bat records by distance from selected location</h2>
           <div id="distance-bands"></div>
         </section>
         <section class="records-section">
@@ -55,17 +55,17 @@
           <ul id="record-list" class="record-list"></ul>
         </section>
         <section id="species-card" class="species-card" aria-live="polite" aria-label="Selected bat record"></section>
-        <div class="story-nav" aria-label="Facility story navigation">
-          <button id="previous" type="button" aria-label="Previous facility">← Previous</button>
+        <div class="story-nav" aria-label="Location story navigation">
+          <button id="previous" type="button" aria-label="Previous location">← Previous</button>
           <span id="page-number"></span>
-          <button id="next" type="button" aria-label="Next facility">Next →</button>
+          <button id="next" type="button" aria-label="Next location">Next →</button>
         </div>
         <footer><a href="data/storymap.json">Data and methods</a> · <a href="../book/media-credits.html">Image credits</a></footer>
       </section>
       <section class="map-shell" aria-label="Interactive map">
-        <div id="map" role="application" aria-label="Map of selected mineral facility and nearby bat point records"></div>
+        <div id="map" role="application" aria-label="Map of selected mineral location and nearby bat point records"></div>
         <div class="map-legend" aria-label="Map legend">
-          <span><i class="legend-mine"></i> Mineral facility</span>
+          <span><i class="legend-mine"></i> Mine / mineral feature</span>
           <span><i class="legend-bat"></i> Bat record</span>
           <span><i class="legend-ring"></i> Selected radius</span>
         </div>
