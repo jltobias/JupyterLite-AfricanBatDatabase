@@ -1,0 +1,8 @@
+.ipynb_checkpoints/
+__pycache__/
+.pytest_cache/
+.jupyterlite.doit.db
+_build/
+build/
+site/
+*.py[cod]

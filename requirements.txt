@@ -1,0 +1,10 @@
+geopandas>=1.0,<2
+jupyter-book>=1.0,<2
+jupyterlite-core>=0.8
+jupyterlite-xeus>=4.3
+nbformat>=5.9,<6
+pandas>=2.2,<3
+pyproj>=3.7,<4
+pytest>=8,<9
+requests>=2.31,<3
+xlrd>=2.0,<3

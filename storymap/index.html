@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="A mine-by-mine exploration of African bat occurrence records near mineral facilities.">
+    <title>African Bats & Mining | StoryMap</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+    <link rel="stylesheet" href="storymap.css">
+  </head>
+  <body>
+    <header class="topbar">
+      <a class="brand" href="../">FIELD NOTES <span>/ AFRICA</span></a>
+      <nav aria-label="Project links">
+        <a href="../book/">Book</a>
+        <a href="../lab/">JupyterLite</a>
+        <a href="../lab/index.html?path=african_bat_mines_story.jGIS">Open in JupyterGIS</a>
+      </nav>
+    </header>
+    <main>
+      <section class="story" aria-label="Mine-by-mine story">
+        <div class="eyebrow">A SPATIAL STORY · 50 KM STUDY AREA</div>
+        <h1>African Bats<br>&amp; Mining</h1>
+        <p class="lede">Follow mineral facilities and the bat records documented around them.</p>
+        <p class="notice"><strong>Important:</strong> the supplied bat points are occurrence localities, not a confirmed-roost inventory. Distance is not evidence of impact, habitat use, exposure, or disease risk.</p>
+        <div id="status" role="status" aria-live="polite">Loading source data…</div>
+        <section id="facility-card" aria-live="polite" aria-label="Selected facility"></section>
+        <section class="controls" aria-label="Map controls">
+          <h2>Distance rings</h2>
+          <fieldset>
+            <legend>Center rings on</legend>
+            <label><input type="radio" name="ring-center" value="mine" checked> Selected facility</label>
+            <label><input type="radio" name="ring-center" value="bat"> Selected bat record</label>
+          </fieldset>
+          <div id="radius-controls" class="radius-controls" aria-label="Buffer radii"></div>
+          <p class="control-note">Select one or more radii. Bat-centered rings are exploratory buffers, not foraging ranges.</p>
+        </section>
+        <section class="band-section" aria-label="Records by distance from mine">
+          <h2>Bat records by distance from facility</h2>
+          <div id="distance-bands"></div>
+        </section>
+        <section class="records-section">
+          <h2>Nearby bat records <span id="record-count"></span></h2>
+          <p class="control-note">Hover to preview; select a record to inspect its species card and center bat buffers.</p>
+          <ul id="record-list" class="record-list"></ul>
+        </section>
+        <section id="species-card" class="species-card" aria-live="polite" aria-label="Selected bat record"></section>
+        <div class="story-nav" aria-label="Facility story navigation">
+          <button id="previous" type="button" aria-label="Previous facility">← Previous</button>
+          <span id="page-number"></span>
+          <button id="next" type="button" aria-label="Next facility">Next →</button>
+        </div>
+        <footer><a href="data/storymap.json">Data and methods</a> · <a href="../book/media-credits.html">Image credits</a></footer>
+      </section>
+      <section class="map-shell" aria-label="Interactive map">
+        <div id="map" role="application" aria-label="Map of selected mineral facility and nearby bat point records"></div>
+        <div class="map-legend" aria-label="Map legend">
+          <span><i class="legend-mine"></i> Mineral facility</span>
+          <span><i class="legend-bat"></i> Bat record</span>
+          <span><i class="legend-ring"></i> Selected radius</span>
+        </div>
+      </section>
+    </main>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="storymap.js"></script>
+  </body>
+</html>

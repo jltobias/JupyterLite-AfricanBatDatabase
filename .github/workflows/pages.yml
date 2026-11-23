@@ -1,0 +1,63 @@
+name: Build and publish
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: pages-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: mamba-org/setup-micromamba@v2
+        with:
+          environment-file: .github/build-environment.yml
+          cache-environment: true
+          init-shell: bash
+      - name: Build source-derived data
+        shell: bash -el {0}
+        run: python scripts/build_data.py --output-dir _build/generated
+      - name: Test analysis helpers
+        shell: bash -el {0}
+        run: python -m pytest -q
+      - name: Build Jupyter Book
+        shell: bash -el {0}
+        run: jupyter-book build book --path-output _build/jbook
+      - name: Build JupyterLite
+        shell: bash -el {0}
+        run: |
+          jupyter lite build \
+            --lite-dir _build/generated/lite \
+            --contents content \
+            --output-dir _build/site/lab \
+            --base-url "/${GITHUB_REPOSITORY#*/}/lab/"
+      - name: Assemble Pages site
+        shell: bash -el {0}
+        run: python scripts/assemble_site.py --generated _build/generated --book-html _build/jbook/_build/html --site _build/site
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: _build/site
+
+  deploy:
+    if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4

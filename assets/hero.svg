@@ -1,0 +1,70 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="520" viewBox="0 0 1280 520" role="img" aria-labelledby="title description">
+  <title id="title">African Bats and Mining storymap</title>
+  <desc id="description">A dark map-inspired illustration with an outline of Africa, distance rings around a mineral facility, and bat observation points.</desc>
+  <defs>
+    <linearGradient id="background" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#10252a"/>
+      <stop offset="1" stop-color="#183a38"/>
+    </linearGradient>
+    <linearGradient id="continent" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#244a43"/>
+      <stop offset="1" stop-color="#193b38"/>
+    </linearGradient>
+    <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
+      <path d="M40 0H0V40" fill="none" stroke="#b7c8b0" stroke-opacity=".07" stroke-width="1"/>
+    </pattern>
+    <filter id="glow" x="-60%" y="-60%" width="220%" height="220%">
+      <feGaussianBlur stdDeviation="7" result="blur"/>
+      <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+  </defs>
+  <rect width="1280" height="520" rx="22" fill="url(#background)"/>
+  <rect width="1280" height="520" rx="22" fill="url(#grid)"/>
+  <g fill="none" stroke="#d9b96c" stroke-opacity=".32">
+    <circle cx="850" cy="275" r="52" stroke-width="1.5"/>
+    <circle cx="850" cy="275" r="94" stroke-width="1.5"/>
+    <circle cx="850" cy="275" r="142" stroke-width="1.5"/>
+    <circle cx="850" cy="275" r="196" stroke-width="1.5"/>
+    <circle cx="850" cy="275" r="252" stroke-width="1.5"/>
+  </g>
+  <path d="M585 79 626 69 659 83 685 78 714 94 739 98 755 116 779 120 789 138 817 146 838 164 851 182 879 190 891 213 914 223 919 244 942 257 936 278 921 290 915 317 896 331 890 351 870 362 861 386 843 400 836 427 819 448 800 453 785 439 781 414 765 392 761 367 743 351 734 327 718 314 699 293 685 273 668 257 654 239 637 230 626 209 611 197 605 177 592 165 588 144 575 127 579 108Z" fill="url(#continent)" stroke="#aac4a1" stroke-opacity=".65" stroke-width="2"/>
+  <path d="M584 80 558 68 538 74 525 91 538 105 558 101 578 109M838 164 862 151 884 154 900 168 891 185 879 190" fill="none" stroke="#aac4a1" stroke-opacity=".55" stroke-width="2"/>
+  <g fill="none" stroke="#e8d095" stroke-opacity=".24" stroke-width="1.2">
+    <path d="M588 144 645 141 688 157 727 151 779 161 817 146"/>
+    <path d="M605 177 646 178 688 194 731 189 769 202 811 191 851 182"/>
+    <path d="M626 209 670 215 709 229 750 221 789 235 834 224 891 213"/>
+    <path d="M654 239 694 247 733 260 777 253 819 269 864 251 919 244"/>
+    <path d="M685 273 723 282 762 294 803 287 845 301 891 282 936 278"/>
+    <path d="M718 314 750 324 786 338 825 329 861 343 915 317"/>
+  </g>
+  <g fill="#f3cf72" stroke="#10252a" stroke-width="3">
+    <circle cx="654" cy="207" r="5"/><circle cx="719" cy="244" r="5"/>
+    <circle cx="763" cy="188" r="5"/><circle cx="793" cy="318" r="5"/>
+    <circle cx="686" cy="303" r="5"/><circle cx="825" cy="231" r="5"/>
+    <circle cx="740" cy="358" r="5"/><circle cx="882" cy="322" r="5"/>
+  </g>
+  <g fill="none" stroke="#d9b96c" stroke-width="1.4" stroke-dasharray="4 7" stroke-opacity=".65">
+    <path d="M686 303 850 275"/>
+  </g>
+  <g filter="url(#glow)">
+    <circle cx="850" cy="275" r="10" fill="#ec855d"/>
+    <circle cx="850" cy="275" r="18" fill="none" stroke="#ec855d" stroke-opacity=".55" stroke-width="2"/>
+  </g>
+  <g font-family="Inter,Segoe UI,Arial,sans-serif">
+    <text x="76" y="130" fill="#f4e8cc" font-size="15" font-weight="700" letter-spacing="3">FIELD NOTES · AFRICA</text>
+    <text x="76" y="197" fill="#fff8e9" font-size="43" font-weight="700">Bats &amp; Mining</text>
+    <text x="77" y="235" fill="#d9e3d3" font-size="18">A mine-by-mine spatial story</text>
+    <text x="77" y="281" fill="#b9c9b8" font-size="14">Tracing documented bat records near</text>
+    <text x="77" y="304" fill="#b9c9b8" font-size="14">mineral facilities — not inferring impact.</text>
+    <text x="77" y="390" fill="#e1c77f" font-size="12" font-weight="700" letter-spacing="1.5">FACILITY DISTANCE</text>
+    <circle cx="85" cy="420" r="7" fill="#ec855d"/>
+    <text x="103" y="425" fill="#e4e6d9" font-size="13">Mine / mineral facility</text>
+    <circle cx="85" cy="450" r="6" fill="#f3cf72"/>
+    <text x="103" y="455" fill="#e4e6d9" font-size="13">Bat occurrence record</text>
+    <circle cx="85" cy="481" r="10" fill="none" stroke="#d9b96c" stroke-opacity=".8"/>
+    <circle cx="85" cy="481" r="16" fill="none" stroke="#d9b96c" stroke-opacity=".42"/>
+    <text x="111" y="486" fill="#e4e6d9" font-size="13">Distance rings (schematic)</text>
+    <text x="850" y="64" fill="#e9d8a4" font-size="12" font-weight="700" letter-spacing="2">50 KM CONTEXT</text>
+    <text x="850" y="505" fill="#a9beb0" font-size="11" text-anchor="middle" letter-spacing="1.2">SCHEMATIC — NOT A DATA MAP</text>
+  </g>
+</svg>

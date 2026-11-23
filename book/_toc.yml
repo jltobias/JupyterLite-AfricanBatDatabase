@@ -1,0 +1,9 @@
+format: jb-book
+root: intro
+chapters:
+  - file: data
+  - file: methods
+  - file: results
+  - file: storymap
+  - file: notebooks/explore_bat_mine_matches
+  - file: media-credits

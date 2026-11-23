@@ -1,0 +1,74 @@
+{
+  "Cnephaeus isabellinus": {
+    "english_name": "Meridional serotine",
+    "name_source": "https://en.wikipedia.org/wiki/Meridional_serotine",
+    "diet": null,
+    "diet_source": null,
+    "foraging_range": null,
+    "foraging_source": null,
+    "disease_note": "No species-specific disease claim is made in this project; proximity to a mine is not evidence of transmission.",
+    "image": "cnephaeus-isabellinus.jpg",
+    "image_credit": "Mourad, CC BY 4.0",
+    "image_source": "https://commons.wikimedia.org/wiki/File:Cnephaeus_isabellinus.jpg"
+  },
+  "Miniopterus schreibersii": {
+    "english_name": "Common bent-wing bat",
+    "name_source": "https://en.wikipedia.org/wiki/Common_bent-wing_bat",
+    "diet": "Insectivorous.",
+    "diet_source": "https://en.wikipedia.org/wiki/Common_bent-wing_bat",
+    "foraging_range": null,
+    "foraging_source": null,
+    "disease_note": "No species-specific disease claim is made in this project; proximity to a mine is not evidence of transmission.",
+    "image": "miniopterus-schreibersii.jpg",
+    "image_credit": "Lukáš Jurek, CC BY-SA 4.0",
+    "image_source": "https://commons.wikimedia.org/wiki/File:Miniopterus_schreibersii.jpg"
+  },
+  "Myotis punicus": {
+    "english_name": "Felten's myotis",
+    "name_source": "https://en.wikipedia.org/wiki/Felten%27s_myotis",
+    "diet": null,
+    "diet_source": null,
+    "foraging_range": null,
+    "foraging_source": null,
+    "disease_note": "No species-specific disease claim is made in this project; proximity to a mine is not evidence of transmission.",
+    "image": "myotis-punicus.jpg",
+    "image_credit": "Aissa Djamel Filali, CC BY-SA 4.0",
+    "image_source": "https://commons.wikimedia.org/wiki/File:Myotis_punicus_-_Aissa_Djamel_Filali.jpeg"
+  },
+  "Plecotus gaisleri": {
+    "english_name": "Gaisler's long-eared bat",
+    "name_source": "https://en.wikipedia.org/wiki/Gaisler%27s_long-eared_bat",
+    "diet": null,
+    "diet_source": null,
+    "foraging_range": null,
+    "foraging_source": null,
+    "disease_note": "No species-specific disease claim is made in this project; proximity to a mine is not evidence of transmission.",
+    "image": "plecotus-gaisleri.jpg",
+    "image_credit": "tomas_kay, CC BY 4.0",
+    "image_source": "https://commons.wikimedia.org/wiki/File:Gaisler%27s_long-eared_bat_-_tomas_kay_%28cropped%29.jpg"
+  },
+  "Rhinolophus ferrumequinum": {
+    "english_name": "Greater horseshoe bat",
+    "name_source": "https://en.wikipedia.org/wiki/Greater_horseshoe_bat",
+    "diet": "Insectivorous.",
+    "diet_source": "https://en.wikipedia.org/wiki/Greater_horseshoe_bat",
+    "foraging_range": null,
+    "foraging_source": null,
+    "disease_note": "No species-specific disease claim is made in this project; proximity to a mine is not evidence of transmission.",
+    "image": "rhinolophus-ferrumequinum.jpg",
+    "image_credit": "Charles J. Sharp, CC BY-SA 4.0",
+    "image_source": "https://commons.wikimedia.org/wiki/File:Greater_horseshoe_bat_%28Rhinolophus_ferrumequinum%29_Hrdovicka.jpg"
+  },
+  "Rhinolophus hipposideros": {
+    "english_name": "Lesser horseshoe bat",
+    "name_source": "https://en.wikipedia.org/wiki/Lesser_horseshoe_bat",
+    "diet": "Insectivorous.",
+    "diet_source": "https://en.wikipedia.org/wiki/Lesser_horseshoe_bat",
+    "foraging_range": null,
+    "foraging_source": null,
+    "disease_note": "No species-specific disease claim is made in this project; proximity to a mine is not evidence of transmission.",
+    "image": "rhinolophus-hipposideros.jpg",
+    "image_credit": "Bouke ten Cate, CC BY 4.0",
+    "image_source": "https://commons.wikimedia.org/wiki/File:Kleine_hoefijzerneus_-_lesser_horseshoe_bat_-_Rhinolophus_hipposideros.jpg"
+  }
+}
