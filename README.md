@@ -6,6 +6,8 @@
 
 <a href="#the-storymap"><img src="assets/hero.svg" alt="Illustration of an African mine, bat occurrence points, and distance rings" width="100%"></a>
 
+<p><a href="https://jltobias.github.io/JupyterLite-AfricanBatDatabase/storymap/"><strong>Launch the StoryMap</strong></a></p>
+
 **JupyterGIS storymap** · reproducible notebooks · open data
 
 </div>
@@ -16,7 +18,7 @@
 |---|---|---|
 | **Jupyter Book** — data, methods, results, and image credits | [Read the book](https://jltobias.github.io/JupyterLite-AfricanBatDatabase/book/) |
 | **JupyterLite Lab** — run the analysis notebook in your browser | [Open JupyterLite](https://jltobias.github.io/JupyterLite-AfricanBatDatabase/lab/) |
-| **JupyterGIS StoryMap** — step through mine facilities | [Open the StoryMap](https://jltobias.github.io/JupyterLite-AfricanBatDatabase/storymap/) |
+| **JupyterGIS StoryMap** — step through mine facilities | [Launch the StoryMap](https://jltobias.github.io/JupyterLite-AfricanBatDatabase/storymap/) |
 | **Native JupyterGIS story** | [Open the `.jGIS` project in JupyterLite](https://jltobias.github.io/JupyterLite-AfricanBatDatabase/lab/index.html?path=african_bat_mines_story.jGIS) |
 | **Notebook.link** — open the repository's notebook and files in the browser | [Open this project in Notebook.link](https://notebook.link/github/jltobias/JupyterLite-AfricanBatDatabase/tree/main/) |
 
