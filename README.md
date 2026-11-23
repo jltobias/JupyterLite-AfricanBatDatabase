@@ -19,7 +19,7 @@
 | **Jupyter Book** — data, methods, results, and image credits | [Read the book](https://jltobias.github.io/JupyterLite-AfricanBatDatabase/book/) |
 | **JupyterLite Lab** — run the analysis notebook in your browser | [Open JupyterLite](https://jltobias.github.io/JupyterLite-AfricanBatDatabase/lab/) |
 | **JupyterGIS StoryMap** — step through mines and mineral-resource features | [Launch the StoryMap](https://jltobias.github.io/JupyterLite-AfricanBatDatabase/storymap/) |
-| **Native JupyterGIS story** | [Open the `.jGIS` project in JupyterLite](https://jltobias.github.io/JupyterLite-AfricanBatDatabase/lab/index.html?path=african_bat_mines_story.jGIS) |
+| **Native JupyterGIS story** | [Open the `.jGIS` project in JupyterLite](https://jltobias.github.io/JupyterLite-AfricanBatDatabase/lab/lab/index.html?path=african_bat_mines_story.jGIS) |
 | **Notebook.link** — open the repository's notebook and files in the browser | [Open this project in Notebook.link](https://notebook.link/github/jltobias/JupyterLite-AfricanBatDatabase/tree/main/) |
 | **References** — data sources, bat species, and Ebola evidence | [Read the bibliography](REFERENCES.md) |
 
