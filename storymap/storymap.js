@@ -65,11 +65,12 @@ function buildRadiusControls() {
 
 function drawRings() {
   ringLayer.clearLayers();
-  if (!story || !story.pages[currentIndex]) return;
+  const page = visiblePages[currentIndex]?.page;
+  if (!page) return;
   const centerMode = document.querySelector('input[name="ring-center"]:checked').value;
   const coordinates = centerMode === "bat" && selectedRecord
     ? selectedRecord.coordinates
-    : story.pages[currentIndex].coordinates;
+    : page.coordinates;
   if (centerMode === "bat" && !selectedRecord) return;
   const [longitude, latitude] = coordinates;
   radii.forEach((radius, index) => {
