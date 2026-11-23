@@ -13,6 +13,7 @@ const recordLayer = L.layerGroup().addTo(map);
 const ringLayer = L.layerGroup().addTo(map);
 let story;
 let currentIndex = 0;
+let visiblePages = [];
 let selectedRecord;
 const enabledRadii = new Set();
 const status = document.getElementById("status");
@@ -141,13 +142,65 @@ function renderBands(page) {
   });
 }
 
+function initializeMineFilters() {
+  const countryFilter = document.getElementById("country-filter");
+  const mineFilter = document.getElementById("mine-filter");
+  const allCountries = document.createElement("option");
+  allCountries.value = "";
+  allCountries.textContent = "All countries";
+  countryFilter.appendChild(allCountries);
+
+  const countries = [...new Set(
+    story.pages.map((page) => page.facility.country).filter(Boolean)
+  )].sort((a, b) => a.localeCompare(b));
+  countries.forEach((country) => {
+    const option = document.createElement("option");
+    option.value = country;
+    option.textContent = country;
+    countryFilter.appendChild(option);
+  });
+  countryFilter.value = story.pages[0]?.facility.country || "";
+
+  function updateMineOptions() {
+    visiblePages = story.pages
+      .map((page, storyIndex) => ({ page, storyIndex }))
+      .filter(({ page }) => !countryFilter.value || page.facility.country === countryFilter.value);
+    mineFilter.replaceChildren();
+
+    const nameCounts = new Map();
+    visiblePages.forEach(({ page }) => {
+      const name = page.facility.name || "Unnamed facility";
+      nameCounts.set(name, (nameCounts.get(name) || 0) + 1);
+    });
+    visiblePages.forEach(({ page, storyIndex }) => {
+      const option = document.createElement("option");
+      option.value = String(storyIndex);
+      const name = page.facility.name || "Unnamed facility";
+      option.textContent = nameCounts.get(name) > 1
+        ? `${name} · USGS ${page.facility.source_position}`
+        : name;
+      mineFilter.appendChild(option);
+    });
+    renderPage(0);
+  }
+
+  countryFilter.addEventListener("change", updateMineOptions);
+  mineFilter.addEventListener("change", () => {
+    const storyIndex = Number(mineFilter.value);
+    const pageIndex = visiblePages.findIndex((entry) => entry.storyIndex === storyIndex);
+    if (pageIndex >= 0) renderPage(pageIndex);
+  });
+  updateMineOptions();
+}
+
 function renderPage(index) {
-  if (!story || !story.pages.length) {
+  if (!story || !visiblePages.length) {
     status.textContent = "No coordinate-valid mine facilities have bat records within 50 km in the selected sources.";
     return;
   }
-  currentIndex = Math.max(0, Math.min(index, story.pages.length - 1));
-  const page = story.pages[currentIndex];
+  currentIndex = Math.max(0, Math.min(index, visiblePages.length - 1));
+  const { page, storyIndex } = visiblePages[currentIndex];
+  document.getElementById("mine-filter").value = String(storyIndex);
   selectedRecord = undefined;
   facilityLayer.clearLayers();
   recordLayer.clearLayers();
@@ -217,9 +270,9 @@ function renderPage(index) {
   });
   if (page.bat_records.length) speciesCard(page.bat_records[0]);
   renderBands(page);
-  document.getElementById("page-number").textContent = `${currentIndex + 1} / ${story.pages.length}`;
+  document.getElementById("page-number").textContent = `${currentIndex + 1} / ${visiblePages.length}`;
   document.getElementById("previous").disabled = currentIndex === 0;
-  document.getElementById("next").disabled = currentIndex === story.pages.length - 1;
+  document.getElementById("next").disabled = currentIndex === visiblePages.length - 1;
   status.textContent = `${story.summary.valid_bat_records.toLocaleString()} valid point records · ${story.summary.invalid_bat_coordinates_excluded} invalid source coordinates excluded · source precision retained`;
   map.setView([mineLat, mineLon], 8);
   drawRings();
@@ -236,7 +289,7 @@ fetch("data/storymap.json")
   })
   .then((data) => {
     story = data;
-    renderPage(0);
+    initializeMineFilters();
   })
   .catch((error) => {
     status.textContent = `StoryMap data error: ${error.message}`;
