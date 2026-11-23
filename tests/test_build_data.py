@@ -254,6 +254,10 @@ class MineralSourceTests(unittest.TestCase):
         self.assertEqual(facilities.iloc[1]["Country"], "Ivory Coast")
         self.assertEqual(facilities.iloc[0]["facility_id"], "USGS-PP1802-1")
         self.assertEqual(facilities.iloc[0]["story_kind"], "resource_feature")
+        self.assertEqual(
+            facilities.iloc[0]["source_url"],
+            "https://www.sciencebase.gov/catalog/item/594d3c8ee4b062508e39b332",
+        )
 
     def test_supplemental_kibali_location_is_separate_and_cited(self):
         facilities = _supplemental_facility_data(

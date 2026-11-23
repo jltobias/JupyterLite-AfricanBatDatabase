@@ -14,7 +14,7 @@ Eros, J. M., & Candelario-Quintana, L. (2006). *Mineral Facilities of Africa and
 
 This is a historical inventory, not a current operating register. The project preserves the source's status and facility attributes without asserting that they are current.
 
-Labay, K. et al. (2017). *Global Distribution of Selected Mines, Deposits, and Districts of Critical Minerals*. U.S. Geological Survey data release. [https://doi.org/10.5066/F7GH9GQR](https://doi.org/10.5066/F7GH9GQR). The project uses the supplied `PP1802_CritMin_pts` point layer, filtered to countries represented in the bat dataset. The release describes selected features as of 2017, does not identify a feature class for each point, and is not a 2026 mine inventory.
+Labay, K. et al. (2017). *Global Distribution of Selected Mines, Deposits, and Districts of Critical Minerals*. U.S. Geological Survey data release. [DOI](https://doi.org/10.5066/F7GH9GQR) · [ScienceBase catalog record](https://www.sciencebase.gov/catalog/item/594d3c8ee4b062508e39b332). The project uses the supplied `PP1802_CritMin_pts` point layer, filtered to countries represented in the bat dataset. The release describes selected features as of 2017, does not identify a feature class for each point, and is not a 2026 mine inventory.
 
 Kibali Gold Mine is not present in the supplied USGS layers. Its separate supplemental point is sourced to [Wikidata item Q104843063](https://www.wikidata.org/wiki/Q104843063); its source and coordinates are retained with the feature.
 

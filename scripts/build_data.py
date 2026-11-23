@@ -27,7 +27,8 @@ SUPPLEMENTAL_FACILITIES = ROOT / "data" / "source" / "supplemental_facilities.ge
 SPECIES_PROFILES = ROOT / "data" / "species_profiles.json"
 PHOTO_DIR = ROOT / "assets" / "photos"
 USGS_URL = "https://pubs.usgs.gov/of/2006/1135/table1.xls"
-CRITICAL_MINERALS_URL = "https://doi.org/10.5066/F7GH9GQR"
+CRITICAL_MINERALS_URL = "https://www.sciencebase.gov/catalog/item/594d3c8ee4b062508e39b332"
+CRITICAL_MINERALS_DOI_URL = "https://doi.org/10.5066/F7GH9GQR"
 RADIUS_KM = (1, 5, 10, 20, 30, 40, 50)
 BANDS = ("0-1 km", ">1-5 km", ">5-10 km", ">10-20 km", ">20-30 km", ">30-40 km", ">40-50 km")
 MAX_DISTANCE_M = 50_000
@@ -738,13 +739,14 @@ def build(output_dir: Path, shapefile_path: Path = BAT_SHAPEFILE) -> dict[str, A
             "bat": "Monadjem et al. (2024), African Bat Database shapefile supplied for this project; source version 1.",
             "mining": [
                 "Eros & Candelario-Quintana (2006), USGS Open-File Report 2006-1135, Table 1.",
-                "Labay et al. (2017), USGS Global Distribution of Selected Mines, Deposits, and Districts of Critical Minerals; point layer.",
+                "Labay et al. (2017), USGS Global Distribution of Selected Mines, Deposits, and Districts of Critical Minerals; point layer (DOI: https://doi.org/10.5066/F7GH9GQR; ScienceBase: https://www.sciencebase.gov/catalog/item/594d3c8ee4b062508e39b332).",
                 "Kibali Gold Mine coordinates from Wikidata item Q104843063; supplemental to the USGS layers.",
             ],
             "bat_license": "CC BY 4.0",
             "bat_url": "https://doi.org/10.6084/m9.figshare.26363308.v1",
             "mining_url": "https://pubs.usgs.gov/of/2006/1135/",
             "critical_minerals_url": CRITICAL_MINERALS_URL,
+            "critical_minerals_doi_url": CRITICAL_MINERALS_DOI_URL,
             "supplemental_facility_url": "https://www.wikidata.org/wiki/Q104843063",
             "crs": "EPSG:4326",
             "coordinate_precision": "Original valid bat and mineral-feature coordinates retained without rounding.",

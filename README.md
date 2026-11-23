@@ -97,7 +97,7 @@ The later Figshare release adds a `Roost` field, but those records do not match 
 
 Eros, J. M., & Candelario-Quintana, L. (2006). **Mineral Facilities of Africa and the Middle East.** U.S. Geological Survey Open-File Report 2006-1135, version 1.0. [Report and Table 1](https://pubs.usgs.gov/of/2006/1135/). Table 1: [Excel file](https://pubs.usgs.gov/of/2006/1135/table1.xls).
 
-Labay, K. et al. (2017). **Global Distribution of Selected Mines, Deposits, and Districts of Critical Minerals.** U.S. Geological Survey data release. [https://doi.org/10.5066/F7GH9GQR](https://doi.org/10.5066/F7GH9GQR). This project uses the supplied `PP1802_CritMin_pts` shapefile layer and filters it to countries represented in the bat dataset.
+Labay, K. et al. (2017). **Global Distribution of Selected Mines, Deposits, and Districts of Critical Minerals.** U.S. Geological Survey data release. [DOI](https://doi.org/10.5066/F7GH9GQR) · [ScienceBase catalog record](https://www.sciencebase.gov/catalog/item/594d3c8ee4b062508e39b332). This project uses the supplied `PP1802_CritMin_pts` shapefile layer and filters it to countries represented in the bat dataset.
 
 **Kibali Gold Mine:** its supplemental point is from [Wikidata item Q104843063](https://www.wikidata.org/wiki/Q104843063); it is not part of either USGS dataset.
 

@@ -1,6 +1,6 @@
 # Reproducible spatial results
 
-The current build uses the user-supplied 2024 African Bat Database point shapefile, USGS Open-File Report 2006-1135 Table 1, the supplied 2017 USGS critical-mineral point layer, and a separately attributed supplemental point for Kibali Gold Mine. Source coordinate precision is preserved.
+The current build uses the user-supplied 2024 African Bat Database point shapefile, USGS Open-File Report 2006-1135 Table 1, the supplied [2017 USGS critical-mineral point layer](https://www.sciencebase.gov/catalog/item/594d3c8ee4b062508e39b332) ([DOI](https://doi.org/10.5066/F7GH9GQR)), and a separately attributed supplemental point for Kibali Gold Mine. Source coordinate precision is preserved.
 
 - **17,285** point features are in the shapefile; **17,255** have valid point coordinates and **30** invalid sentinel coordinates are excluded.
 - **848** geocoded facilities are retained from the USGS 2006 inventory.
