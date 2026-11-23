@@ -12,15 +12,16 @@
 
 </div>
 
-> **Deployment status:** The Book, JupyterLite Lab, and StoryMap are built by GitHub Actions for GitHub Pages. The links will be live after Pages is enabled for GitHub Actions and the first deployment succeeds.
+> **Deployment status:** The Book, JupyterLite Lab, and StoryMap are live on GitHub Pages and are published by GitHub Actions.
 
 | Explore | Link |
-|---|---|---|
+|---|---|
 | **Jupyter Book** — data, methods, results, and image credits | [Read the book](https://jltobias.github.io/JupyterLite-AfricanBatDatabase/book/) |
 | **JupyterLite Lab** — run the analysis notebook in your browser | [Open JupyterLite](https://jltobias.github.io/JupyterLite-AfricanBatDatabase/lab/) |
 | **JupyterGIS StoryMap** — step through mine facilities | [Launch the StoryMap](https://jltobias.github.io/JupyterLite-AfricanBatDatabase/storymap/) |
 | **Native JupyterGIS story** | [Open the `.jGIS` project in JupyterLite](https://jltobias.github.io/JupyterLite-AfricanBatDatabase/lab/index.html?path=african_bat_mines_story.jGIS) |
 | **Notebook.link** — open the repository's notebook and files in the browser | [Open this project in Notebook.link](https://notebook.link/github/jltobias/JupyterLite-AfricanBatDatabase/tree/main/) |
+| **References** — bat species and Ebola evidence | [Read the bibliography](REFERENCES.md) |
 
 ## Current build
 
@@ -39,6 +40,8 @@ Each facility page pairs source attributes with a photograph only when a correct
 
 - Keep the selected facility prominent and show its country, commodity, type, status, mining method, operator, and capacity when recorded.
 - Label nearby points by **genus and species**; hover previews a species card and click, tap, or keyboard focus can open it.
+- Show verified English bat names in parentheses on map labels and nearby-record entries.
+- Filter mine pages by country and mine, and export the selected mine's 50 km species summary using the browser's print-to-PDF dialog.
 - Calculate facility-to-point distances with WGS 84 ellipsoidal geodesics and assign records to non-overlapping bands: 0–1, 1–5, 5–10, 10–20, 20–30, 30–40, and 40–50 km.
 - Include those seven geodesic distance bands as separate, initially hidden polygon layers in the native JupyterGIS project. The layers are centered on mines represented in the story and show the corresponding occurrence-record count.
 - Let readers draw one or more 1, 5, 10, 20, 30, 40, and 50 km circles from either the selected facility or a selected bat point. Bat-centered circles are rendered on demand to avoid obscuring other points.
@@ -75,6 +78,8 @@ The GitHub Actions workflow builds the Book, JupyterLite app, and StoryMap and d
 - The user-supplied shapefile's coordinate precision is preserved as requested. Its source layer has no roost-status field, so the map labels points as **bat records**, not verified roosts.
 
 ## Data sources
+
+See [REFERENCES.md](REFERENCES.md) for cited bat-species, Ebola, and disease-transmission literature.
 
 ### Bat records
 

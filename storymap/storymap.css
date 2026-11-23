@@ -159,6 +159,17 @@ input { accent-color: var(--green); }
 }
 .radius-button[aria-pressed="true"] { background: var(--green); border-color: var(--green); color: white; }
 .control-note { color: var(--muted); font-size: 10px; margin: 5px 0 10px; }
+.export-button {
+  background: var(--green);
+  border: 0;
+  border-radius: 3px;
+  color: white;
+  cursor: pointer;
+  font: inherit;
+  font-size: 11px;
+  padding: 7px 10px;
+}
+.export-button:disabled { cursor: default; opacity: .45; }
 
 .band-row { align-items: center; display: grid; font-size: 10px; gap: 7px; grid-template-columns: 56px 1fr 28px; margin: 4px 0; }
 .band-track { background: #e5e5da; height: 7px; }
@@ -248,4 +259,24 @@ footer a { color: #315d50; }
   .topbar nav { gap: 10px; }
   .topbar nav a { font-size: 10px; }
   .brand { font-size: 10px; }
+}
+
+.pdf-report { display: none; }
+
+@media print {
+  @page { size: A4; margin: 18mm; }
+  body { background: white; color: #17241f; font: 10pt/1.4 Arial, sans-serif; }
+  body > :not(#pdf-report) { display: none !important; }
+  .pdf-report { display: block !important; }
+  .pdf-report h1 { font-size: 22pt; margin: 0 0 6mm; }
+  .pdf-report h2 { font-size: 13pt; margin-top: 10mm; }
+  .pdf-report .pdf-eyebrow { color: #52635a; font-size: 8pt; font-weight: bold; letter-spacing: .12em; }
+  .pdf-report .pdf-caveat { border-left: 2px solid #b98e42; padding-left: 8px; }
+  .pdf-report .pdf-summary { font-weight: bold; margin: 8mm 0 4mm; }
+  .pdf-report table { border-collapse: collapse; font-size: 9pt; width: 100%; }
+  .pdf-report thead { display: table-header-group; }
+  .pdf-report th, .pdf-report td { border: 1px solid #cdd2c8; padding: 6px; text-align: left; vertical-align: top; }
+  .pdf-report th { background: #edf0e9 !important; }
+  .pdf-report tr { break-inside: avoid; }
+  .pdf-report a { color: inherit; overflow-wrap: anywhere; }
 }

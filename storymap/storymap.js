@@ -150,6 +150,65 @@ function renderBands(page) {
   });
 }
 
+function renderPdfReport(page) {
+  const species = new Map();
+  page.bat_records.forEach((record) => {
+    const scientificName = record.scientific_name || "Unknown species";
+    if (!species.has(scientificName)) {
+      species.set(scientificName, {
+        scientificName,
+        englishName: record.english_name,
+        nameSource: record.name_source,
+        recordCount: 0,
+        nearestDistance: Number.POSITIVE_INFINITY,
+        bands: new Set()
+      });
+    }
+    const taxon = species.get(scientificName);
+    taxon.recordCount += 1;
+    taxon.nearestDistance = Math.min(taxon.nearestDistance, Number(record.distance_km));
+    if (record.distance_band) taxon.bands.add(record.distance_band);
+  });
+
+  const rows = [...species.values()]
+    .sort((a, b) => a.scientificName.localeCompare(b.scientificName))
+    .map((taxon) => {
+      const englishName = taxon.englishName
+        ? `<br>(${esc(taxon.englishName)})${taxon.nameSource ? ` · ${link(taxon.nameSource, "name source")}` : ""}`
+        : "";
+      const nearest = Number.isFinite(taxon.nearestDistance)
+        ? `${taxon.nearestDistance.toFixed(2)} km`
+        : "Not recorded";
+      return `<tr>
+        <td><em>${esc(taxon.scientificName)}</em>${englishName}</td>
+        <td>${taxon.recordCount}</td>
+        <td>${nearest}</td>
+        <td>${esc([...taxon.bands].join(", ") || "Not recorded")}</td>
+      </tr>`;
+    }).join("");
+  const facility = page.facility;
+  const nearest = Number.isFinite(Number(page.nearest_record_km))
+    ? `${Number(page.nearest_record_km).toFixed(2)} km`
+    : "Not recorded";
+  const generated = new Date().toLocaleDateString();
+
+  document.getElementById("pdf-report").innerHTML = `
+    <header>
+      <p class="pdf-eyebrow">AFRICAN BATS &amp; MINING · SPECIES SUMMARY</p>
+      <h1>Bat species within 50 km of ${esc(facility.name)}</h1>
+      <p>${esc(facility.country)} · ${esc(facility.commodity || "Commodity not recorded")} · Generated ${esc(generated)}</p>
+    </header>
+    <p class="pdf-caveat"><strong>Interpretation:</strong> bat points are occurrence records, not a confirmed-roost inventory. Proximity does not establish mine impact, habitat use, exposure, or disease risk.</p>
+    <p class="pdf-summary">${page.bat_records.length.toLocaleString()} occurrence records representing ${species.size.toLocaleString()} species; nearest record ${nearest} from the facility.</p>
+    <table>
+      <thead><tr><th>Species (English name, if sourced)</th><th>Records</th><th>Nearest record</th><th>Distance bands</th></tr></thead>
+      <tbody>${rows || '<tr><td colspan="4">No bat records are listed for this facility.</td></tr>'}</tbody>
+    </table>
+    <h2>Sources and methods</h2>
+    <p>Bat occurrence records: Monadjem et al. (2024), <em>African Bat Database</em>, <a href="https://doi.org/10.6084/m9.figshare.26363308.v1">Figshare dataset, version 1</a>.</p>
+    <p>Mine locations: USGS Open-File Report 2006-1135, Table 1. Distances are WGS84 geodesic measurements; the 50 km study area is an analysis threshold, not a biological range estimate.</p>`;
+}
+
 function initializeMineFilters() {
   const countryFilter = document.getElementById("country-filter");
   const mineFilter = document.getElementById("mine-filter");
@@ -260,6 +319,7 @@ function renderPage(index) {
     <p><strong>${page.nearby_record_count}</strong> bat point records within 50 km; nearest record ${Number(page.nearest_record_km).toFixed(2)} km away.</p>`;
 
   document.getElementById("record-count").textContent = `(${page.bat_records.length})`;
+  document.getElementById("export-pdf").disabled = false;
   const list = document.getElementById("record-list");
   list.replaceChildren();
   page.bat_records.forEach((record) => {
@@ -290,6 +350,17 @@ function renderPage(index) {
 
 document.getElementById("previous").addEventListener("click", () => renderPage(currentIndex - 1));
 document.getElementById("next").addEventListener("click", () => renderPage(currentIndex + 1));
+document.getElementById("export-pdf").addEventListener("click", () => {
+  const page = visiblePages[currentIndex]?.page;
+  if (!page) return;
+  renderPdfReport(page);
+  const originalTitle = document.title;
+  document.title = `Bat species within 50 km of ${page.facility.name}`;
+  window.addEventListener("afterprint", () => {
+    document.title = originalTitle;
+  }, { once: true });
+  window.print();
+});
 buildRadiusControls();
 
 fetch("data/storymap.json")

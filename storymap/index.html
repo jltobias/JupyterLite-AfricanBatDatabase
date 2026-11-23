@@ -6,7 +6,7 @@
     <meta name="description" content="A mine-by-mine exploration of African bat occurrence records near mineral facilities.">
     <title>African Bats & Mining | StoryMap</title>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
-    <link rel="stylesheet" href="storymap.css">
+    <link rel="stylesheet" href="storymap.css?v=20261123">
   </head>
   <body>
     <header class="topbar">
@@ -50,6 +50,8 @@
         <section class="records-section">
           <h2>Nearby bat records <span id="record-count"></span></h2>
           <p class="control-note">Hover to preview; select a record to inspect its species card and center bat buffers.</p>
+          <button id="export-pdf" class="export-button" type="button" disabled>Export species PDF</button>
+          <p class="control-note">Choose “Save as PDF” in the print dialog.</p>
           <ul id="record-list" class="record-list"></ul>
         </section>
         <section id="species-card" class="species-card" aria-live="polite" aria-label="Selected bat record"></section>
@@ -69,7 +71,8 @@
         </div>
       </section>
     </main>
+    <section id="pdf-report" class="pdf-report" aria-label="Printable bat species report"></section>
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-    <script src="storymap.js"></script>
+    <script src="storymap.js?v=20261123"></script>
   </body>
 </html>
