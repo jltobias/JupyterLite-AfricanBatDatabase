@@ -90,7 +90,7 @@ Eros, J. M., & Candelario-Quintana, L. (2006). **Mineral Facilities of Africa an
 
 ### Species ecology and media
 
-Species names, traits, and disease context are linked to species-specific references when available; missing foraging-range values are not invented. The currently included bat and mine photographs are listed in the [Book's media credits](https://jltobias.github.io/JupyterLite-AfricanBatDatabase/book/media-credits.html). Each image credit identifies its creator, source page, and license.
+Species names, traits, and disease context are linked to species-specific references when available; missing foraging-range values are not invented. **Profile coverage is currently partial:** six of the 182 represented species have profile entries, only a few have sourced diet notes, and quantified foraging ranges or species-specific disease associations have not yet been reviewed. The currently included bat and mine photographs are listed in the [Book's media credits](https://jltobias.github.io/JupyterLite-AfricanBatDatabase/book/media-credits.html). Each image credit identifies its creator, source page, and license.
 
 ## Image credits
 
