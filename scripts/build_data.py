@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import argparse
+import gzip
 import json
 import math
 import shutil
@@ -91,6 +92,12 @@ def _write_json(path: Path, data: Any) -> None:
         json.dumps(data, ensure_ascii=False, indent=2, allow_nan=False) + "\n",
         encoding="utf-8",
     )
+
+
+def _write_gzip_json(path: Path, data: Any) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    with gzip.open(path, "wt", encoding="utf-8", compresslevel=9) as output:
+        json.dump(data, output, ensure_ascii=False, allow_nan=False, separators=(",", ":"))
 
 
 def _feature_collection(features: list[dict[str, Any]]) -> dict[str, Any]:
@@ -563,6 +570,7 @@ def build(output_dir: Path, shapefile_path: Path = BAT_SHAPEFILE) -> dict[str, A
     }
     _write_json(out_story / "data" / "storymap.json", story_data)
     _write_json(out_lite / "data" / "storymap.json", story_data)
+    _write_gzip_json(ROOT / "data" / "storymap.json.gz", story_data)
     _write_json(out_lite / "african_bat_mines_story.jGIS", _jgis_project(pages))
 
     shutil.copytree(ROOT / "book" / "notebooks", out_lite / "notebooks", dirs_exist_ok=True)
@@ -570,7 +578,7 @@ def build(output_dir: Path, shapefile_path: Path = BAT_SHAPEFILE) -> dict[str, A
     shutil.copytree(PHOTO_DIR, out_story / "assets" / "photos", dirs_exist_ok=True)
     shutil.copyfile(SPECIES_PROFILES, out_story / "data" / "species_profiles.json")
     shutil.copyfile(SPECIES_PROFILES, out_lite / "data" / "species_profiles.json")
-    shutil.copyfile(ROOT / "lite" / "environment.yml", lite_root / "environment.yml")
+    shutil.copyfile(ROOT / "environment.yml", lite_root / "environment.yml")
     shutil.copyfile(ROOT / "book" / "media-credits.md", out_lite / "media-credits.md")
 
     return story_data["summary"]

@@ -18,6 +18,7 @@
 | **JupyterLite Lab** — run the analysis notebook in your browser | [Open JupyterLite](https://jltobias.github.io/JupyterLite-AfricanBatDatabase/lab/) |
 | **JupyterGIS StoryMap** — step through mine facilities | [Open the StoryMap](https://jltobias.github.io/JupyterLite-AfricanBatDatabase/storymap/) |
 | **Native JupyterGIS story** | [Open the `.jGIS` project in JupyterLite](https://jltobias.github.io/JupyterLite-AfricanBatDatabase/lab/index.html?path=african_bat_mines_story.jGIS) |
+| **Notebook.link** — open the repository's notebook and files in the browser | [Open this project in Notebook.link](https://notebook.link/github/jltobias/JupyterLite-AfricanBatDatabase/tree/main/) |
 
 ## Current build
 
@@ -60,7 +61,7 @@ python -m pytest
 jupyter-book build book --path-output _build/jbook
 ```
 
-The GitHub Actions workflow builds the Book, JupyterLite app, and StoryMap and deploys them to Pages on `main`. JupyterLite's build environment uses `jupytergis-lite` and `specta` so the native `.jGIS` story can be presented in the browser.
+The GitHub Actions workflow builds the Book, JupyterLite app, and StoryMap and deploys them to Pages on `main`. The root `environment.yml` supports both JupyterLite and Notebook.link; the workflow also installs `specta` so the native `.jGIS` story can be presented in the browser.
 
 ## Important interpretation notes
 
