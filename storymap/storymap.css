@@ -175,6 +175,7 @@ input { accent-color: var(--green); }
   display: flex;
   font: inherit;
   font-size: 11px;
+  gap: 8px;
   justify-content: space-between;
   padding: 6px 2px;
   text-align: left;
@@ -182,6 +183,8 @@ input { accent-color: var(--green); }
 }
 .record-list button:hover, .record-list button[aria-current="true"] { color: #a05239; }
 .record-list em { font-family: Georgia, "Times New Roman", serif; }
+.record-name { min-width: 0; }
+.record-list .english-name { font-size: 10px; }
 
 .species-card {
   background: #efede4;

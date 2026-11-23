@@ -33,6 +33,13 @@ function localPhoto(filename) {
   return filename ? `assets/photos/${encodeURIComponent(filename)}` : "";
 }
 
+function speciesLabel(record) {
+  const scientificName = record.scientific_name || "Unknown species";
+  return record.english_name
+    ? `${scientificName} (${record.english_name})`
+    : scientificName;
+}
+
 function buildRadiusControls() {
   const container = document.getElementById("radius-controls");
   container.replaceChildren();
@@ -167,16 +174,17 @@ function initializeMineFilters() {
       .filter(({ page }) => !countryFilter.value || page.facility.country === countryFilter.value);
     mineFilter.replaceChildren();
 
+    const facilityName = (page) => String(page.facility.name || "").trim() || "Unnamed facility";
     const nameCounts = new Map();
     visiblePages.forEach(({ page }) => {
-      const name = page.facility.name || "Unnamed facility";
-      nameCounts.set(name, (nameCounts.get(name) || 0) + 1);
+      const key = facilityName(page).toLocaleLowerCase();
+      nameCounts.set(key, (nameCounts.get(key) || 0) + 1);
     });
     visiblePages.forEach(({ page, storyIndex }) => {
       const option = document.createElement("option");
       option.value = String(storyIndex);
-      const name = page.facility.name || "Unnamed facility";
-      option.textContent = nameCounts.get(name) > 1
+      const name = facilityName(page);
+      option.textContent = nameCounts.get(name.toLocaleLowerCase()) > 1
         ? `${name} · USGS ${page.facility.source_position}`
         : name;
       mineFilter.appendChild(option);
@@ -215,7 +223,7 @@ function renderPage(index) {
   const sites = groupedRecords(page);
   sites.forEach((site) => {
     const [lon, lat] = site.coordinates;
-    const names = site.records.map((record) => record.scientific_name).filter(Boolean);
+    const names = [...new Set(site.records.map(speciesLabel).filter((name) => name !== "Unknown species"))];
     const marker = L.circleMarker([lat, lon], {
       radius: 5, color: "#6d5824", weight: 1.5, fillColor: "#ddb95f", fillOpacity: .92,
       recordIds: site.records.map((record) => record.record_id)
@@ -257,7 +265,8 @@ function renderPage(index) {
     const item = document.createElement("li");
     const button = document.createElement("button");
     button.type = "button";
-    button.innerHTML = `<em>${esc(record.scientific_name || "Unknown species")}</em><span>${Number(record.distance_km).toFixed(1)} km</span>`;
+    const englishName = record.english_name ? ` <span class="english-name">(${esc(record.english_name)})</span>` : "";
+    button.innerHTML = `<span class="record-name"><em>${esc(record.scientific_name || "Unknown species")}</em>${englishName}</span><span>${Number(record.distance_km).toFixed(1)} km</span>`;
     button.addEventListener("mouseenter", () => speciesCard(record));
     button.addEventListener("focus", () => speciesCard(record));
     button.addEventListener("click", () => {
